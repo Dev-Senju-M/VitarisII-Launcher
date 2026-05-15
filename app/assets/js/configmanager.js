@@ -811,3 +811,12 @@ exports.getAllowPrerelease = function(def = false){
 exports.setAllowPrerelease = function(allowPrerelease){
     config.settings.launcher.allowPrerelease = allowPrerelease
 }
+
+exports.getAdminToken = function() {
+    return config.adminToken || null
+}
+
+exports.setAdminToken = function(encryptedToken) {
+    config.adminToken = encryptedToken
+    exports.save()
+}
