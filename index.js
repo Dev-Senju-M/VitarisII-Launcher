@@ -227,6 +227,7 @@ let win
 function createWindow() {
 
     win = new BrowserWindow({
+        title: 'Vitaris Launcher',
         width: 980,
         height: 552,
         icon: getPlatformIcon('SealCircle'),
