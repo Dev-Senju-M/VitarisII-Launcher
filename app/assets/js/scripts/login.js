@@ -1,234 +1,187 @@
-/**
- * Script for login.ejs
- */
-// Validation Regexes.
-const validUsername         = /^[a-zA-Z0-9_]{1,16}$/
-const basicEmail            = /^\S+@\S+\.\S+$/
-//const validEmail          = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
+// login.js — VitarisLauncher
+// Flujo de autenticación dual: Microsoft OAuth2 + offline no-premium
 
-// Login Elements
-const loginCancelContainer  = document.getElementById('loginCancelContainer')
-const loginCancelButton     = document.getElementById('loginCancelButton')
-const loginEmailError       = document.getElementById('loginEmailError')
-const loginUsername         = document.getElementById('loginUsername')
-const loginPasswordError    = document.getElementById('loginPasswordError')
-const loginPassword         = document.getElementById('loginPassword')
-const checkmarkContainer    = document.getElementById('checkmarkContainer')
-const loginRememberOption   = document.getElementById('loginRememberOption')
-const loginButton           = document.getElementById('loginButton')
-const loginForm             = document.getElementById('loginForm')
+const { MSFT_OPCODE, MSFT_REPLY_TYPE, MSFT_ERROR } = require('./assets/js/ipcconstants')
+const AuthManager  = require('./assets/js/authmanager')
+const WhitelistMgr = require('./assets/js/whitelistmanager')
+const { LoggerUtil } = require('helios-core')
 
-// Control variables.
-let lu = false, lp = false
+const msftLoginLogger = LoggerUtil.getLogger('Login-Microsoft')
 
-
-/**
- * Show a login error.
- * 
- * @param {HTMLElement} element The element on which to display the error.
- * @param {string} value The error text.
- */
-function showError(element, value){
-    element.innerHTML = value
-    element.style.opacity = 1
-}
-
-/**
- * Shake a login error to add emphasis.
- * 
- * @param {HTMLElement} element The element to shake.
- */
-function shakeError(element){
-    if(element.style.opacity == 1){
-        element.classList.remove('shake')
-        void element.offsetWidth
-        element.classList.add('shake')
-    }
-}
-
-/**
- * Validate that an email field is neither empty nor invalid.
- * 
- * @param {string} value The email value.
- */
-function validateEmail(value){
-    if(value){
-        if(!basicEmail.test(value) && !validUsername.test(value)){
-            showError(loginEmailError, Lang.queryJS('login.error.invalidValue'))
-            loginDisabled(true)
-            lu = false
-        } else {
-            loginEmailError.style.opacity = 0
-            lu = true
-            if(lp){
-                loginDisabled(false)
-            }
-        }
-    } else {
-        lu = false
-        showError(loginEmailError, Lang.queryJS('login.error.requiredValue'))
-        loginDisabled(true)
-    }
-}
-
-/**
- * Validate that the password field is not empty.
- * 
- * @param {string} value The password value.
- */
-function validatePassword(value){
-    if(value){
-        loginPasswordError.style.opacity = 0
-        lp = true
-        if(lu){
-            loginDisabled(false)
-        }
-    } else {
-        lp = false
-        showError(loginPasswordError, Lang.queryJS('login.error.invalidValue'))
-        loginDisabled(true)
-    }
-}
-
-// Emphasize errors with shake when focus is lost.
-loginUsername.addEventListener('focusout', (e) => {
-    validateEmail(e.target.value)
-    shakeError(loginEmailError)
-})
-loginPassword.addEventListener('focusout', (e) => {
-    validatePassword(e.target.value)
-    shakeError(loginPasswordError)
-})
-
-// Validate input for each field.
-loginUsername.addEventListener('input', (e) => {
-    validateEmail(e.target.value)
-})
-loginPassword.addEventListener('input', (e) => {
-    validatePassword(e.target.value)
-})
-
-/**
- * Enable or disable the login button.
- * 
- * @param {boolean} v True to enable, false to disable.
- */
-function loginDisabled(v){
-    if(loginButton.disabled !== v){
-        loginButton.disabled = v
-    }
-}
-
-/**
- * Enable or disable loading elements.
- * 
- * @param {boolean} v True to enable, false to disable.
- */
-function loginLoading(v){
-    if(v){
-        loginButton.setAttribute('loading', v)
-        loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.login'), Lang.queryJS('login.loggingIn'))
-    } else {
-        loginButton.removeAttribute('loading')
-        loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.loggingIn'), Lang.queryJS('login.login'))
-    }
-}
-
-/**
- * Enable or disable login form.
- * 
- * @param {boolean} v True to enable, false to disable.
- */
-function formDisabled(v){
-    loginDisabled(v)
-    loginCancelButton.disabled = v
-    loginUsername.disabled = v
-    loginPassword.disabled = v
-    if(v){
-        checkmarkContainer.setAttribute('disabled', v)
-    } else {
-        checkmarkContainer.removeAttribute('disabled')
-    }
-    loginRememberOption.disabled = v
-}
-
+// === State variables (consumed by loginOptions.js) ============
 let loginViewOnSuccess = VIEWS.landing
-let loginViewOnCancel = VIEWS.settings
+let loginViewOnCancel  = VIEWS.settings
 let loginViewCancelHandler
 
-function loginCancelEnabled(val){
-    if(val){
-        $(loginCancelContainer).show()
-    } else {
-        $(loginCancelContainer).hide()
+// === Elementos DOM ============================================
+const loginOfflineUsername = document.getElementById('loginOfflineUsername')
+const loginOfflineButton   = document.getElementById('loginOfflineButton')
+const loginOfflineError    = document.getElementById('loginOfflineUsernameError')
+
+// === Validación username offline ==============================
+const USERNAME_REGEX = /^[a-zA-Z0-9_]{1,16}$/
+
+function validateOfflineUsername() {
+    const val = loginOfflineUsername.value.trim()
+    if (!USERNAME_REGEX.test(val)) {
+        loginOfflineError.textContent = Lang.queryJS('login.error.invalidValue')
+        loginOfflineButton.disabled = true
+        return false
+    }
+    loginOfflineError.textContent = ''
+    loginOfflineButton.disabled = false
+    return true
+}
+
+loginOfflineUsername.addEventListener('input', validateOfflineUsername)
+loginOfflineUsername.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !loginOfflineButton.disabled) loginOffline()
+})
+
+// === Login con Microsoft ======================================
+function loginWithMicrosoft() {
+    loginFormDisabled(true)
+    switchView(getCurrentView(), VIEWS.waiting, 500, 500, () => {
+        ipcRenderer.send(
+            MSFT_OPCODE.OPEN_LOGIN,
+            loginViewOnSuccess,
+            loginViewOnCancel
+        )
+    })
+}
+
+// Handle Microsoft auth reply (SUCCESS path — auth code received)
+ipcRenderer.on(MSFT_OPCODE.REPLY_LOGIN, async (_, ...args) => {
+    // Only handle replies that originated from the login view context.
+    // settings.js also listens to this event for its own Microsoft add-account flow.
+    // The viewOnClose argument tells us where to go on close.
+    if (args[0] === MSFT_REPLY_TYPE.ERROR) {
+        const viewOnClose = args[2]
+        switchView(getCurrentView(), viewOnClose, 500, 500, () => {
+            loginFormDisabled(false)
+            if (args[1] === MSFT_ERROR.NOT_FINISHED) {
+                msftLoginLogger.info('Microsoft login cancelled by user.')
+                return
+            }
+            setOverlayContent(
+                Lang.queryJS('settings.msftLogin.errorTitle'),
+                Lang.queryJS('settings.msftLogin.errorMessage'),
+                Lang.queryJS('login.tryAgain')
+            )
+            setOverlayHandler(() => { toggleOverlay(false) })
+            toggleOverlay(true)
+        })
+    } else if (args[0] === MSFT_REPLY_TYPE.SUCCESS) {
+        const queryMap  = args[1]
+        const viewOnClose = args[2]
+
+        if (Object.prototype.hasOwnProperty.call(queryMap, 'error')) {
+            switchView(getCurrentView(), viewOnClose, 500, 500, () => {
+                loginFormDisabled(false)
+                setOverlayContent(
+                    queryMap.error,
+                    queryMap.error_description,
+                    Lang.queryJS('login.tryAgain')
+                )
+                setOverlayHandler(() => { toggleOverlay(false) })
+                toggleOverlay(true)
+            })
+            return
+        }
+
+        msftLoginLogger.info('Acquired authCode, proceeding with authentication.')
+        try {
+            const account = await AuthManager.addMicrosoftAccount(queryMap.code)
+            await handlePostAuth(account, viewOnClose)
+        } catch (displayableError) {
+            const actualError = isDisplayableError(displayableError)
+                ? displayableError
+                : { title: Lang.queryJS('login.error.unknown.title'), desc: Lang.queryJS('login.error.unknown.desc') }
+            switchView(getCurrentView(), viewOnClose, 500, 500, () => {
+                loginFormDisabled(false)
+                setOverlayContent(actualError.title, actualError.desc, Lang.queryJS('login.tryAgain'))
+                setOverlayHandler(() => { toggleOverlay(false) })
+                toggleOverlay(true)
+            })
+        }
+    }
+})
+
+// === Login offline / no-premium ==============================
+async function loginOffline() {
+    if (!validateOfflineUsername()) return
+
+    loginFormDisabled(true)
+
+    try {
+        const account = AuthManager.addOfflineAccount(loginOfflineUsername.value.trim())
+        await handlePostAuth(account, loginViewOnSuccess)
+    } catch (err) {
+        loginFormDisabled(false)
+        loginOfflineError.textContent = Lang.queryJS('login.error.invalidValue')
     }
 }
 
-loginCancelButton.onclick = (e) => {
+// === Post-autenticación: verificar whitelist ==================
+async function handlePostAuth(account, viewOnSuccess) {
+    const allowed = await WhitelistMgr.isWhitelisted(account.username)
+
+    if (!allowed) {
+        if (account.type === 'offline') {
+            // Remove from config — use ConfigManager directly (no async needed for offline)
+            const ConfigManager = require('./assets/js/configmanager')
+            ConfigManager.removeAuthAccount(account.uuid)
+            ConfigManager.save()
+        }
+        loginFormDisabled(false)
+        setOverlayContent(
+            'No estás en la whitelist',
+            'Tu nombre de usuario no está en la whitelist del servidor. Contacta a un administrador.',
+            Lang.queryJS('login.tryAgain')
+        )
+        setOverlayHandler(() => { toggleOverlay(false) })
+        toggleOverlay(true)
+        return
+    }
+
+    updateSelectedAccount(account)
+    loginCancelEnabled(false)
+    loginViewCancelHandler = null
+    loginOfflineUsername.value = ''
+    loginOfflineError.textContent = ''
+    loginOfflineButton.disabled = true
+    loginFormDisabled(false)
+    switchView(getCurrentView(), viewOnSuccess || VIEWS.landing)
+}
+
+// === Helpers UI ==============================================
+function loginFormDisabled(val) {
+    loginOfflineUsername.disabled = val
+    loginOfflineButton.disabled   = val
+    document.getElementById('loginMicrosoftButton').disabled = val
+}
+
+function loginCancelEnabled(val) {
+    const el = document.getElementById('loginCancelContainer')
+    if (!el) return
+    if (val) {
+        $(el).show()
+    } else {
+        $(el).hide()
+    }
+}
+
+// Cancel button wiring
+document.getElementById('loginCancelButton').onclick = () => {
     switchView(getCurrentView(), loginViewOnCancel, 500, 500, () => {
-        loginUsername.value = ''
-        loginPassword.value = ''
+        loginOfflineUsername.value = ''
+        loginOfflineError.textContent = ''
+        loginOfflineButton.disabled = true
+        loginFormDisabled(false)
         loginCancelEnabled(false)
-        if(loginViewCancelHandler != null){
+        if (loginViewCancelHandler != null) {
             loginViewCancelHandler()
             loginViewCancelHandler = null
         }
     })
 }
-
-// Disable default form behavior.
-loginForm.onsubmit = () => { return false }
-
-// Bind login button behavior.
-loginButton.addEventListener('click', () => {
-    // Disable form.
-    formDisabled(true)
-
-    // Show loading stuff.
-    loginLoading(true)
-
-    AuthManager.addMojangAccount(loginUsername.value, loginPassword.value).then((value) => {
-        updateSelectedAccount(value)
-        loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.loggingIn'), Lang.queryJS('login.success'))
-        $('.circle-loader').toggleClass('load-complete')
-        $('.checkmark').toggle()
-        setTimeout(() => {
-            switchView(VIEWS.login, loginViewOnSuccess, 500, 500, async () => {
-                // Temporary workaround
-                if(loginViewOnSuccess === VIEWS.settings){
-                    await prepareSettings()
-                }
-                loginViewOnSuccess = VIEWS.landing // Reset this for good measure.
-                loginCancelEnabled(false) // Reset this for good measure.
-                loginViewCancelHandler = null // Reset this for good measure.
-                loginUsername.value = ''
-                loginPassword.value = ''
-                $('.circle-loader').toggleClass('load-complete')
-                $('.checkmark').toggle()
-                loginLoading(false)
-                loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.success'), Lang.queryJS('login.login'))
-                formDisabled(false)
-            })
-        }, 1000)
-    }).catch((displayableError) => {
-        loginLoading(false)
-
-        let actualDisplayableError
-        if(isDisplayableError(displayableError)) {
-            msftLoginLogger.error('Error while logging in.', displayableError)
-            actualDisplayableError = displayableError
-        } else {
-            // Uh oh.
-            msftLoginLogger.error('Unhandled error during login.', displayableError)
-            actualDisplayableError = Lang.queryJS('login.error.unknown')
-        }
-
-        setOverlayContent(actualDisplayableError.title, actualDisplayableError.desc, Lang.queryJS('login.tryAgain'))
-        setOverlayHandler(() => {
-            formDisabled(false)
-            toggleOverlay(false)
-        })
-        toggleOverlay(true)
-    })
-
-})
