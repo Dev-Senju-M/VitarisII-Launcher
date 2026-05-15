@@ -1,6 +1,5 @@
-const got             = require('got')
-const { safeStorage } = require('electron')
-const ConfigManager   = require('./configmanager')
+const got           = require('got')
+const ConfigManager = require('./configmanager')
 
 const GITHUB_OWNER   = 'Vitaris'
 const GITHUB_REPO    = 'vitaris-distro'
@@ -8,15 +7,15 @@ const WHITELIST_PATH = 'whitelist.json'
 const API_BASE       = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${WHITELIST_PATH}`
 
 function getToken() {
-    const encrypted = ConfigManager.getAdminToken()
-    if (!encrypted) return null
-    return safeStorage.decryptString(Buffer.from(encrypted, 'base64'))
+    const stored = ConfigManager.getAdminToken()
+    if (!stored) return null
+    return Buffer.from(stored, 'base64').toString('utf8')
 }
 exports.getToken = getToken
 
 function setToken(token) {
-    const encrypted = safeStorage.encryptString(token).toString('base64')
-    ConfigManager.setAdminToken(encrypted)
+    const encoded = Buffer.from(token, 'utf8').toString('base64')
+    ConfigManager.setAdminToken(encoded)
 }
 exports.setToken = setToken
 

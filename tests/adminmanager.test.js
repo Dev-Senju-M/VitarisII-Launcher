@@ -1,11 +1,4 @@
 jest.mock('got')
-jest.mock('electron', () => ({
-    safeStorage: {
-        isEncryptionAvailable: () => true,
-        encryptString: (s) => Buffer.from(s),
-        decryptString: (b) => b.toString()
-    }
-}), { virtual: true })
 jest.mock('../app/assets/js/configmanager', () => ({
     getAdminToken: jest.fn(() => null),
     setAdminToken: jest.fn(),
@@ -18,7 +11,7 @@ beforeEach(() => {
 })
 
 describe('setToken / getToken', () => {
-    it('cifra y descifra el token correctamente', () => {
+    it('codifica y decodifica el token correctamente', () => {
         const ConfigManager = require('../app/assets/js/configmanager')
         ConfigManager.getAdminToken.mockReturnValue(
             Buffer.from('ghp_test123').toString('base64')
