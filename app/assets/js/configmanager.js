@@ -410,6 +410,26 @@ exports.addMicrosoftAuthAccount = function(uuid, accessToken, name, mcExpires, m
  * 
  * @returns {boolean} True if the account was removed, false if it never existed.
  */
+/**
+ * Adds an authenticated offline (no-premium) account to the database.
+ *
+ * @param {string} uuid The deterministic UUID of the offline account.
+ * @param {string} username The username of the offline account.
+ *
+ * @returns {Object} The authenticated account object created by this action.
+ */
+exports.addOfflineAuthAccount = function(uuid, username){
+    config.selectedAccount = uuid
+    config.authenticationDatabase[uuid] = {
+        type: 'offline',
+        accessToken: '0',
+        username: username.trim(),
+        uuid: uuid.trim(),
+        displayName: username.trim()
+    }
+    return config.authenticationDatabase[uuid]
+}
+
 exports.removeAuthAccount = function(uuid){
     if(config.authenticationDatabase[uuid] != null){
         delete config.authenticationDatabase[uuid]

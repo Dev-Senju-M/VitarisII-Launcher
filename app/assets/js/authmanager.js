@@ -9,6 +9,7 @@
  * @module authmanager
  */
 // Requirements
+const crypto                 = require('crypto')
 const ConfigManager          = require('./configmanager')
 const { LoggerUtil }         = require('helios-core')
 const { RestResponseStatus } = require('helios-core/common')
@@ -416,10 +417,51 @@ async function validateSelectedMicrosoftAccount(){
 exports.validateSelected = async function(){
     const current = ConfigManager.getSelectedAccount()
 
+    if(current && current.type === 'offline') {
+        return { account: current }
+    }
+
     if(current.type === 'microsoft') {
         return await validateSelectedMicrosoftAccount()
     } else {
         return await validateSelectedMojangAccount()
     }
-    
+
+}
+
+// === Auth offline (no-premium) ================================
+
+/**
+ * UUID v3 offline compatible con Minecraft:
+ * MD5("OfflinePlayer:" + username) con bits de versión y variante.
+ *
+ * @param {string} username The offline player username.
+ * @returns {string} A deterministic UUID string in 8-4-4-4-12 format.
+ */
+function generateOfflineUUID(username) {
+    const hash = crypto.createHash('md5').update('OfflinePlayer:' + username).digest()
+    hash[6] = (hash[6] & 0x0f) | 0x30  // version 3
+    hash[8] = (hash[8] & 0x3f) | 0x80  // variant RFC 4122
+    const hex = hash.toString('hex')
+    return [
+        hex.slice(0, 8),
+        hex.slice(8, 12),
+        hex.slice(12, 16),
+        hex.slice(16, 20),
+        hex.slice(20, 32)
+    ].join('-')
+}
+exports.generateOfflineUUID = generateOfflineUUID
+
+/**
+ * Crea y persiste una cuenta offline en la base de datos de auth.
+ *
+ * @param {string} username The username for the offline account.
+ * @returns {Object} The created offline account object.
+ */
+exports.addOfflineAccount = function(username) {
+    const uuid = generateOfflineUUID(username)
+    const account = ConfigManager.addOfflineAuthAccount(uuid, username)
+    ConfigManager.save()
+    return account
 }
