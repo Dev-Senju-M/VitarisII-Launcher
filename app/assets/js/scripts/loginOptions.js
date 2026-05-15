@@ -38,10 +38,9 @@ loginOptionMojang.onclick = (e) => {
 
 loginOptionsCancelButton.onclick = (e) => {
     switchView(getCurrentView(), loginOptionsViewOnCancel, 500, 500, () => {
-        // Clear login values (Mojang login)
-        // No cleanup needed for Microsoft.
-        loginUsername.value = ''
-        loginPassword.value = ''
+        // Clear offline username field if it exists (dual login UI)
+        const offlineUsernameEl = document.getElementById('loginOfflineUsername')
+        if (offlineUsernameEl) offlineUsernameEl.value = ''
         if(loginOptionsViewCancelHandler != null){
             loginOptionsViewCancelHandler()
             loginOptionsViewCancelHandler = null

@@ -346,10 +346,8 @@ async function validateSelectedAccount(){
                 if(isMicrosoft) {
                     // Empty for now
                 } else {
-                    // Mojang
-                    // For convenience, pre-populate the username of the account.
-                    document.getElementById('loginUsername').value = selectedAcc.username
-                    validateEmail(selectedAcc.username)
+                    // Legacy Mojang path — loginUsername field removed in dual-auth UI.
+                    // No pre-population needed; user will use the offline field or Microsoft.
                 }
                 
                 loginOptionsViewOnLoginSuccess = getCurrentView()
