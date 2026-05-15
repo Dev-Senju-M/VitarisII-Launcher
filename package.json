@@ -1,11 +1,11 @@
 {
-  "name": "nexuslauncher",
-  "version": "2.2.3",
-  "productName": "Nexus Launcher",
-  "description": "Modded Minecraft Launcher",
-  "author": "VonDefiant (https://github.com/VonDefiant/)",
+  "name": "vitarislauncher",
+  "version": "1.0.0",
+  "productName": "Vitaris Launcher",
+  "description": "Launcher oficial de la comunidad Vitaris",
+  "author": "Vitaris",
   "license": "UNLICENSED",
-  "homepage": "https://github.com/VonDefiant/NexusLauncher",
+  "homepage": "https://github.com/Vitaris/vitaris-launcher",
   "bugs": {
     "url": "https://github.com/VonDefiant/NexusLauncher/issues"
   },
@@ -13,11 +13,15 @@
   "main": "index.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder build",
-    "dist:win": "npm run dist -- -w",
-    "dist:mac": "npm run dist -- -m",
-    "dist:linux": "npm run dist -- -l",
-    "lint": "eslint --config .eslintrc.json ."
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux",
+    "lint": "eslint app",
+    "test": "jest --testPathPattern=tests/"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "engines": {
     "node": "20.x.x"
@@ -42,7 +46,8 @@
   "devDependencies": {
     "electron": "^33.2.1",
     "electron-builder": "^25.1.8",
-    "eslint": "^8.57.1"
+    "eslint": "^8.57.1",
+    "jest": "^30.4.2"
   },
   "repository": {
     "type": "git",
