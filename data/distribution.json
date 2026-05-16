@@ -10,9 +10,9 @@
       "address": "40.233.28.64",
       "minecraftVersion": "1.20.1",
       "discord": {
-        "shortId": "<FILL IN OR REMOVE DISCORD OBJECT>",
-        "largeImageText": "<FILL IN OR REMOVE DISCORD OBJECT>",
-        "largeImageKey": "<FILL IN OR REMOVE DISCORD OBJECT>"
+        "shortId": "Vitaris",
+        "largeImageText": "Vitaris — Servidor Modded 1.20.1",
+        "largeImageKey": "vitaris"
       },
       "mainServer": false,
       "autoconnect": true,
@@ -1478,9 +1478,9 @@
       "address": "40.233.28.64",
       "minecraftVersion": "1.20.1",
       "discord": {
-        "shortId": "<FILL IN OR REMOVE DISCORD OBJECT>",
-        "largeImageText": "<FILL IN OR REMOVE DISCORD OBJECT>",
-        "largeImageKey": "<FILL IN OR REMOVE DISCORD OBJECT>"
+        "shortId": "Vitaris",
+        "largeImageText": "Vitaris — Servidor Modded 1.20.1",
+        "largeImageKey": "vitaris"
       },
       "mainServer": false,
       "autoconnect": true,
@@ -3703,5 +3703,8 @@
         }
       ]
     }
-  ]
+  ],
+  "discord": {
+    "clientId": "1400517299181715640"
+  }
 }
