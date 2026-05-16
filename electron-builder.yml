@@ -1,11 +1,16 @@
-appId: 'nexuslauncher'
-productName: 'Nexus Launcher'
+appId: 'com.vitaris.launcher'
+productName: 'Vitaris Launcher'
 artifactName: '${productName}-setup-${version}.${ext}'
 
-copyright: 'Copyright © 2018-2030 Von Defiant'
+copyright: 'Copyright © 2026 Senju'
 
 asar: true
 compression: 'maximum'
+
+publish:
+  provider: github
+  owner: Dev-Senju-M
+  repo: VitarisII-Launcher
 
 files:
   - '!{dist,.gitignore,.vscode,docs,dev-app-update.yml,.nvmrc,.eslintrc.json}'
@@ -14,8 +19,8 @@ extraResources:
   - 'libraries'
 
 # Windows Configuration
-win: 
-  target: 
+win:
+  target:
     - target: 'nsis'
       arch: 'x64'
 
@@ -25,7 +30,7 @@ nsis:
   perMachine: false
   allowElevation: true
   allowToChangeInstallationDirectory: true
-  installerSidebar: 'build/installerSidebar.bmp'  # ← SOLO ESTO
+  installerSidebar: 'build/installerSidebar.bmp'
 
 # macOS Configuration
 mac:
@@ -38,12 +43,12 @@ mac:
   category: 'public.app-category.games'
 
 # Linux Configuration
-linux: 
+linux:
   target: 'AppImage'
-  maintainer: 'VonDefiant'
-  vendor: 'VonDefiant'
+  maintainer: 'Senju'
+  vendor: 'Vitaris'
   synopsis: 'Modded Minecraft Launcher'
-  description: 'Custom launcher which allows users to join modded servers. All mods, configurations, and updates are handled automatically.'
+  description: 'Launcher personalizado para la comunidad de Minecraft Modded Vitaris.'
   category: 'Game'
 
 directories:
