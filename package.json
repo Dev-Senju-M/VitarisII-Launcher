@@ -18,7 +18,7 @@
     "dist:mac": "electron-builder --mac",
     "dist:linux": "electron-builder --linux",
     "lint": "eslint app",
-    "test": "jest --testPathPattern=tests/"
+    "test": "jest --testPathPatterns=tests/"
   },
   "jest": {
     "testEnvironment": "node"
