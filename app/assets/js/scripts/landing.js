@@ -100,12 +100,6 @@ function setLaunchEnabled(val){
 
 // Bind launch button
 document.getElementById('launch_button').addEventListener('click', async e => {
-    const account = ConfigManager.getSelectedAccount()
-    if (account && account.type === 'offline') {
-        launchSKLauncher()
-        return
-    }
-
     loggerLanding.info('Launching game..')
     try {
         const server = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
@@ -143,18 +137,24 @@ function launchSKLauncher() {
         ? path.join(remote.app.getAppPath(), 'libraries', 'sklauncher')
         : path.join(process.resourcesPath, 'libraries', 'sklauncher')
 
-    const exePath = path.join(baseDir, 'SKlauncher.exe')
-    const jarPath = path.join(baseDir, 'SKlauncher.jar')
+    const files = fs.existsSync(baseDir) ? fs.readdirSync(baseDir) : []
+    const exeFile = files.find(f => f.toLowerCase().endsWith('.exe'))
+    const jarFile = files.find(f => f.toLowerCase().endsWith('.jar'))
 
     setLaunchDetails('Abriendo SKLauncher...')
     toggleLaunchArea(true)
 
+    const account  = ConfigManager.getSelectedAccount()
+    const username = account ? (account.displayName || account.username || '') : ''
+
     let proc
-    if (fs.existsSync(exePath)) {
-        proc = spawn(exePath, [], { detached: true, stdio: 'ignore' })
-    } else if (fs.existsSync(jarPath)) {
+    if (jarFile) {
         const jExe = ConfigManager.getJavaExecutable(ConfigManager.getSelectedServer()) || 'javaw'
-        proc = spawn(jExe, ['-jar', jarPath], { detached: true, stdio: 'ignore' })
+        const args = ['-jar', path.join(baseDir, jarFile)]
+        if (username) args.push('--username', username, '--offline')
+        proc = spawn(jExe, args, { detached: true, stdio: 'ignore' })
+    } else if (exeFile) {
+        proc = spawn(path.join(baseDir, exeFile), [], { detached: true, stdio: 'ignore' })
     } else {
         toggleLaunchArea(false)
         showLaunchFailure(
