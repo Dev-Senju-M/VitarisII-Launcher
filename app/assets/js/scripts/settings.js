@@ -360,9 +360,9 @@ document.getElementById('settingsAddMicrosoftAccount').onclick = (e) => {
 
 // Bind reply for Microsoft Login.
 ipcRenderer.on(MSFT_OPCODE.REPLY_LOGIN, (_, ...arguments_) => {
-    // login.js sets this flag when IT initiates Microsoft auth from the login view.
+    // login.js sets window.msftLoginPending when IT initiates Microsoft auth.
     // In that case, login.js handles the reply; settings.js must skip it.
-    if (typeof msftLoginPending !== 'undefined' && msftLoginPending) return
+    if (window.msftLoginPending) return
 
     if (arguments_[0] === MSFT_REPLY_TYPE.ERROR) {
 

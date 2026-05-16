@@ -1,201 +1,199 @@
 // login.js — VitarisLauncher
 // Flujo de autenticación dual: Microsoft OAuth2 + offline no-premium
+//
+// Envuelto en IIFE para que sus const locales no colisionen con las
+// declaradas por uicore.js (LoggerUtil, ipcRenderer...) y uibinder.js
+// (AuthManager, ConfigManager...) en el scope global compartido.
+;(function () {
 
-const { MSFT_OPCODE, MSFT_REPLY_TYPE, MSFT_ERROR } = require('./assets/js/ipcconstants')
-// AuthManager ya declarado por uibinder.js en el scope global — no redeclarar
-const WhitelistMgr = require('./assets/js/whitelistmanager')
-const { LoggerUtil } = require('helios-core')
+    const { MSFT_OPCODE, MSFT_REPLY_TYPE, MSFT_ERROR } = require('./assets/js/ipcconstants')
+    const WhitelistMgr = require('./assets/js/whitelistmanager')
+    const loginLogger  = LoggerUtil.getLogger('Login-Microsoft')
 
-const msftLoginLogger = LoggerUtil.getLogger('Login-Microsoft')
+    // === State global (loginOptions.js lo lee/escribe por nombre en window) =
+    window.loginViewOnSuccess     = VIEWS.landing
+    window.loginViewOnCancel      = VIEWS.login
+    window.loginViewCancelHandler = null
 
-// === State variables (consumed by loginOptions.js) ============
-let loginViewOnSuccess = VIEWS.landing
-let loginViewOnCancel  = VIEWS.login
-let loginViewCancelHandler
+    // Flag para evitar que settings.js consuma el mismo auth code OAuth
+    window.msftLoginPending = false
 
-// Flag to distinguish whether THIS script initiated the Microsoft auth flow.
-// settings.js also listens on MSFT_OPCODE.REPLY_LOGIN; this prevents it from
-// consuming the single-use auth code when login.js initiated the flow.
-var msftLoginPending = false  // var so it's accessible on window for settings.js guard
+    // === Elementos DOM =====================================================
+    const loginOfflineUsername = document.getElementById('loginOfflineUsername')
+    const loginOfflineButton   = document.getElementById('loginOfflineButton')
+    const loginOfflineError    = document.getElementById('loginOfflineUsernameError')
 
-// === Elementos DOM ============================================
-const loginOfflineUsername = document.getElementById('loginOfflineUsername')
-const loginOfflineButton   = document.getElementById('loginOfflineButton')
-const loginOfflineError    = document.getElementById('loginOfflineUsernameError')
+    // === Validación username offline =======================================
+    const USERNAME_REGEX = /^[a-zA-Z0-9_]{1,16}$/
 
-// === Validación username offline ==============================
-const USERNAME_REGEX = /^[a-zA-Z0-9_]{1,16}$/
-
-function validateOfflineUsername() {
-    const val = loginOfflineUsername.value.trim()
-    if (!USERNAME_REGEX.test(val)) {
-        loginOfflineError.textContent = Lang.queryJS('login.error.invalidValue')
-        loginOfflineButton.disabled = true
-        return false
+    function validateOfflineUsername() {
+        const val = loginOfflineUsername.value.trim()
+        if (!USERNAME_REGEX.test(val)) {
+            loginOfflineError.textContent = Lang.queryJS('login.error.invalidValue')
+            loginOfflineButton.disabled = true
+            return false
+        }
+        loginOfflineError.textContent = ''
+        loginOfflineButton.disabled = false
+        return true
     }
-    loginOfflineError.textContent = ''
-    loginOfflineButton.disabled = false
-    return true
-}
 
-loginOfflineUsername.addEventListener('input', validateOfflineUsername)
-loginOfflineUsername.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !loginOfflineButton.disabled) loginOffline()
-})
-
-// === Login con Microsoft ======================================
-function loginWithMicrosoft() {
-    msftLoginPending = true
-    loginFormDisabled(true)
-    switchView(getCurrentView(), VIEWS.waiting, 500, 500, () => {
-        ipcRenderer.send(
-            MSFT_OPCODE.OPEN_LOGIN,
-            loginViewOnSuccess,
-            loginViewOnCancel
-        )
+    loginOfflineUsername.addEventListener('input', validateOfflineUsername)
+    loginOfflineUsername.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !loginOfflineButton.disabled) loginOffline()
     })
-}
 
-// Handle Microsoft auth reply — only when this script initiated the flow.
-// settings.js also listens on REPLY_LOGIN. Both handlers fire synchronously in the
-// same call stack. The `await Promise.resolve()` below yields to the microtask queue,
-// letting settings.js's synchronous handler fire first and see msftLoginPending = true
-// (the guard in settings.js) — preventing it from consuming the single-use auth code.
-ipcRenderer.on(MSFT_OPCODE.REPLY_LOGIN, async (_, ...args) => {
-    if (!msftLoginPending) return
-    await Promise.resolve()   // yield: settings.js handler runs now, sees flag = true → skips
-    msftLoginPending = false
-
-    if (args[0] === MSFT_REPLY_TYPE.ERROR) {
-        const viewOnClose = args[2]
-        switchView(getCurrentView(), viewOnClose, 500, 500, () => {
-            loginFormDisabled(false)
-            if (args[1] === MSFT_ERROR.NOT_FINISHED) {
-                msftLoginLogger.info('Microsoft login cancelled by user.')
-                return
-            }
-            setOverlayContent(
-                Lang.queryJS('settings.msftLogin.errorTitle'),
-                Lang.queryJS('settings.msftLogin.errorMessage'),
-                Lang.queryJS('login.tryAgain')
+    // === Login con Microsoft ===============================================
+    function loginWithMicrosoft() {
+        window.msftLoginPending = true
+        loginFormDisabled(true)
+        switchView(getCurrentView(), VIEWS.waiting, 500, 500, () => {
+            ipcRenderer.send(
+                MSFT_OPCODE.OPEN_LOGIN,
+                window.loginViewOnSuccess,
+                window.loginViewOnCancel
             )
-            setOverlayHandler(() => { toggleOverlay(false) })
-            toggleOverlay(true)
         })
-    } else if (args[0] === MSFT_REPLY_TYPE.SUCCESS) {
-        const queryMap  = args[1]
-        const viewOnClose = args[2]
+    }
 
-        if (Object.prototype.hasOwnProperty.call(queryMap, 'error')) {
+    // Handle Microsoft auth reply — solo cuando este script inició el flujo.
+    // `await Promise.resolve()` cede el turno para que el handler SÍNCRONO de
+    // settings.js corra primero y vea msftLoginPending = true → lo skipea.
+    ipcRenderer.on(MSFT_OPCODE.REPLY_LOGIN, async (_, ...args) => {
+        if (!window.msftLoginPending) return
+        await Promise.resolve()   // settings.js corre aquí (síncrono), ve flag = true → skip
+        window.msftLoginPending = false
+
+        if (args[0] === MSFT_REPLY_TYPE.ERROR) {
+            const viewOnClose = args[2]
             switchView(getCurrentView(), viewOnClose, 500, 500, () => {
                 loginFormDisabled(false)
+                if (args[1] === MSFT_ERROR.NOT_FINISHED) {
+                    loginLogger.info('Microsoft login cancelled by user.')
+                    return
+                }
                 setOverlayContent(
-                    queryMap.error,
-                    queryMap.error_description,
+                    Lang.queryJS('settings.msftLogin.errorTitle'),
+                    Lang.queryJS('settings.msftLogin.errorMessage'),
                     Lang.queryJS('login.tryAgain')
                 )
                 setOverlayHandler(() => { toggleOverlay(false) })
                 toggleOverlay(true)
             })
+        } else if (args[0] === MSFT_REPLY_TYPE.SUCCESS) {
+            const queryMap    = args[1]
+            const viewOnClose = args[2]
+
+            if (Object.prototype.hasOwnProperty.call(queryMap, 'error')) {
+                switchView(getCurrentView(), viewOnClose, 500, 500, () => {
+                    loginFormDisabled(false)
+                    setOverlayContent(
+                        queryMap.error,
+                        queryMap.error_description,
+                        Lang.queryJS('login.tryAgain')
+                    )
+                    setOverlayHandler(() => { toggleOverlay(false) })
+                    toggleOverlay(true)
+                })
+                return
+            }
+
+            loginLogger.info('Acquired authCode, proceeding with authentication.')
+            try {
+                const account = await AuthManager.addMicrosoftAccount(queryMap.code)
+                await handlePostAuth(account, viewOnClose)
+            } catch (err) {
+                console.error('[VitarisLauncher] Microsoft auth error:', err)
+                const actualError = isDisplayableError(err)
+                    ? err
+                    : { title: Lang.queryJS('login.error.unknown.title'), desc: Lang.queryJS('login.error.unknown.desc') }
+                switchView(getCurrentView(), viewOnClose, 500, 500, () => {
+                    loginFormDisabled(false)
+                    setOverlayContent(actualError.title, actualError.desc, Lang.queryJS('login.tryAgain'))
+                    setOverlayHandler(() => { toggleOverlay(false) })
+                    toggleOverlay(true)
+                })
+            }
+        }
+    })
+
+    // === Login offline / no-premium ========================================
+    async function loginOffline() {
+        if (!validateOfflineUsername()) return
+        loginFormDisabled(true)
+        try {
+            const account = AuthManager.addOfflineAccount(loginOfflineUsername.value.trim())
+            await handlePostAuth(account, window.loginViewOnSuccess)
+        } catch (err) {
+            loginFormDisabled(false)
+            loginOfflineError.textContent = Lang.queryJS('login.error.invalidValue')
+        }
+    }
+
+    // === Post-autenticación: verificar whitelist ===========================
+    async function handlePostAuth(account, viewOnSuccess) {
+        const allowed = await WhitelistMgr.isWhitelisted(account.username)
+
+        if (!allowed) {
+            if (account.type === 'offline') {
+                ConfigManager.removeAuthAccount(account.uuid)
+                ConfigManager.save()
+            }
+            loginFormDisabled(false)
+            setOverlayContent(
+                'No estás en la whitelist',
+                'Tu nombre de usuario no está en la whitelist del servidor. Contacta a un administrador.',
+                Lang.queryJS('login.tryAgain')
+            )
+            setOverlayHandler(() => { toggleOverlay(false) })
+            toggleOverlay(true)
             return
         }
 
-        msftLoginLogger.info('Acquired authCode, proceeding with authentication.')
-        try {
-            const account = await AuthManager.addMicrosoftAccount(queryMap.code)
-            await handlePostAuth(account, viewOnClose)
-        } catch (displayableError) {
-            console.error('[VitarisLauncher] Microsoft auth error:', displayableError)
-            const actualError = isDisplayableError(displayableError)
-                ? displayableError
-                : { title: Lang.queryJS('login.error.unknown.title'), desc: Lang.queryJS('login.error.unknown.desc') }
-            switchView(getCurrentView(), viewOnClose, 500, 500, () => {
-                loginFormDisabled(false)
-                setOverlayContent(actualError.title, actualError.desc, Lang.queryJS('login.tryAgain'))
-                setOverlayHandler(() => { toggleOverlay(false) })
-                toggleOverlay(true)
-            })
-        }
-    }
-})
-
-// === Login offline / no-premium ==============================
-async function loginOffline() {
-    if (!validateOfflineUsername()) return
-
-    loginFormDisabled(true)
-
-    try {
-        const account = AuthManager.addOfflineAccount(loginOfflineUsername.value.trim())
-        await handlePostAuth(account, loginViewOnSuccess)
-    } catch (err) {
-        loginFormDisabled(false)
-        loginOfflineError.textContent = Lang.queryJS('login.error.invalidValue')
-    }
-}
-
-// === Post-autenticación: verificar whitelist ==================
-async function handlePostAuth(account, viewOnSuccess) {
-    const allowed = await WhitelistMgr.isWhitelisted(account.username)
-
-    if (!allowed) {
-        if (account.type === 'offline') {
-            // Remove from config — use ConfigManager directly (no async needed for offline)
-            const ConfigManager = require('./assets/js/configmanager')
-            ConfigManager.removeAuthAccount(account.uuid)
-            ConfigManager.save()
-        }
-        loginFormDisabled(false)
-        setOverlayContent(
-            'No estás en la whitelist',
-            'Tu nombre de usuario no está en la whitelist del servidor. Contacta a un administrador.',
-            Lang.queryJS('login.tryAgain')
-        )
-        setOverlayHandler(() => { toggleOverlay(false) })
-        toggleOverlay(true)
-        return
-    }
-
-    updateSelectedAccount(account)
-    loginCancelEnabled(false)
-    loginViewCancelHandler = null
-    loginOfflineUsername.value = ''
-    loginOfflineError.textContent = ''
-    loginOfflineButton.disabled = true
-    loginFormDisabled(false)
-    switchView(getCurrentView(), viewOnSuccess || VIEWS.landing, 500, 500, () => {}, () => {
-        if (typeof checkAdminRole === 'function') checkAdminRole()
-    })
-}
-
-// === Helpers UI ==============================================
-function loginFormDisabled(val) {
-    loginOfflineUsername.disabled = val
-    loginOfflineButton.disabled   = val
-    document.getElementById('loginMicrosoftButton').disabled = val
-}
-
-function loginCancelEnabled(val) {
-    const el = document.getElementById('loginCancelContainer')
-    if (!el) return
-    if (val) {
-        $(el).show()
-    } else {
-        $(el).hide()
-    }
-}
-
-// Cancel button wiring
-document.getElementById('loginCancelButton').onclick = () => {
-    switchView(getCurrentView(), loginViewOnCancel, 500, 500, () => {
+        updateSelectedAccount(account)
+        loginCancelEnabled(false)
+        window.loginViewCancelHandler = null
         loginOfflineUsername.value = ''
         loginOfflineError.textContent = ''
         loginOfflineButton.disabled = true
         loginFormDisabled(false)
-        loginCancelEnabled(false)
-        if (loginViewCancelHandler != null) {
-            loginViewCancelHandler()
-            loginViewCancelHandler = null
-        }
-    })
-}
+        switchView(getCurrentView(), viewOnSuccess || VIEWS.landing, 500, 500, () => {}, () => {
+            if (typeof checkAdminRole === 'function') checkAdminRole()
+        })
+    }
+
+    // === Helpers UI ========================================================
+    function loginFormDisabled(val) {
+        loginOfflineUsername.disabled = val
+        loginOfflineButton.disabled   = val
+        document.getElementById('loginMicrosoftButton').disabled = val
+    }
+
+    function loginCancelEnabled(val) {
+        const el = document.getElementById('loginCancelContainer')
+        if (!el) return
+        if (val) { $(el).show() } else { $(el).hide() }
+    }
+
+    // Cancel button
+    document.getElementById('loginCancelButton').onclick = () => {
+        switchView(getCurrentView(), window.loginViewOnCancel, 500, 500, () => {
+            loginOfflineUsername.value = ''
+            loginOfflineError.textContent = ''
+            loginOfflineButton.disabled = true
+            loginFormDisabled(false)
+            loginCancelEnabled(false)
+            if (window.loginViewCancelHandler != null) {
+                window.loginViewCancelHandler()
+                window.loginViewCancelHandler = null
+            }
+        })
+    }
+
+    // === Exponer globals (onclick en HTML y loginOptions.js) ===============
+    window.loginWithMicrosoft  = loginWithMicrosoft
+    window.loginOffline        = loginOffline
+    window.loginCancelEnabled  = loginCancelEnabled
+    window.loginFormDisabled   = loginFormDisabled
+
+})()
