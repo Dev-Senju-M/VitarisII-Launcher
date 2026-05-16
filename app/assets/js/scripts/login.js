@@ -10,7 +10,7 @@ const msftLoginLogger = LoggerUtil.getLogger('Login-Microsoft')
 
 // === State variables (consumed by loginOptions.js) ============
 let loginViewOnSuccess = VIEWS.landing
-let loginViewOnCancel  = VIEWS.settings
+let loginViewOnCancel  = VIEWS.login
 let loginViewCancelHandler
 
 // Flag to distinguish whether THIS script initiated the Microsoft auth flow.
@@ -57,9 +57,13 @@ function loginWithMicrosoft() {
 }
 
 // Handle Microsoft auth reply — only when this script initiated the flow.
-// settings.js has its own handler for when it initiates Microsoft login from settings.
+// settings.js also listens on REPLY_LOGIN. Both handlers fire synchronously in the
+// same call stack. The `await Promise.resolve()` below yields to the microtask queue,
+// letting settings.js's synchronous handler fire first and see msftLoginPending = true
+// (the guard in settings.js) — preventing it from consuming the single-use auth code.
 ipcRenderer.on(MSFT_OPCODE.REPLY_LOGIN, async (_, ...args) => {
     if (!msftLoginPending) return
+    await Promise.resolve()   // yield: settings.js handler runs now, sees flag = true → skips
     msftLoginPending = false
 
     if (args[0] === MSFT_REPLY_TYPE.ERROR) {
@@ -101,6 +105,7 @@ ipcRenderer.on(MSFT_OPCODE.REPLY_LOGIN, async (_, ...args) => {
             const account = await AuthManager.addMicrosoftAccount(queryMap.code)
             await handlePostAuth(account, viewOnClose)
         } catch (displayableError) {
+            console.error('[VitarisLauncher] Microsoft auth error:', displayableError)
             const actualError = isDisplayableError(displayableError)
                 ? displayableError
                 : { title: Lang.queryJS('login.error.unknown.title'), desc: Lang.queryJS('login.error.unknown.desc') }
