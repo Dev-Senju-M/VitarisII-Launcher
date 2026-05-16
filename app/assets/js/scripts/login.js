@@ -15,8 +15,7 @@
     window.loginViewOnCancel      = VIEWS.login
     window.loginViewCancelHandler = null
 
-    // Flag para evitar que settings.js consuma el mismo auth code OAuth
-    window.msftLoginPending = false
+    window.loginMsftLoginPending = false
 
     // === Elementos DOM =====================================================
     const loginOfflineUsername = document.getElementById('loginOfflineUsername')
@@ -45,7 +44,7 @@
 
     // === Login con Microsoft ===============================================
     function loginWithMicrosoft() {
-        window.msftLoginPending = true
+        window.loginMsftLoginPending = true
         loginFormDisabled(true)
         switchView(getCurrentView(), VIEWS.waiting, 500, 500, () => {
             ipcRenderer.send(
@@ -56,13 +55,10 @@
         })
     }
 
-    // Handle Microsoft auth reply — solo cuando este script inició el flujo.
-    // `await Promise.resolve()` cede el turno para que el handler SÍNCRONO de
-    // settings.js corra primero y vea msftLoginPending = true → lo skipea.
+    // Handle Microsoft auth reply — solo cuando login.js inició el flujo.
     ipcRenderer.on(MSFT_OPCODE.REPLY_LOGIN, async (_, ...args) => {
-        if (!window.msftLoginPending) return
-        await Promise.resolve()   // settings.js corre aquí (síncrono), ve flag = true → skip
-        window.msftLoginPending = false
+        if (!window.loginMsftLoginPending) return
+        window.loginMsftLoginPending = false
 
         if (args[0] === MSFT_REPLY_TYPE.ERROR) {
             const viewOnClose = args[2]
