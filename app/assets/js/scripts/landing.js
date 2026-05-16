@@ -100,6 +100,12 @@ function setLaunchEnabled(val){
 
 // Bind launch button
 document.getElementById('launch_button').addEventListener('click', async e => {
+    const account = ConfigManager.getSelectedAccount()
+    if (account && account.type === 'offline') {
+        launchSKLauncher()
+        return
+    }
+
     loggerLanding.info('Launching game..')
     try {
         const server = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
@@ -126,6 +132,41 @@ document.getElementById('launch_button').addEventListener('click', async e => {
         showLaunchFailure(Lang.queryJS('landing.launch.failureTitle'), Lang.queryJS('landing.launch.failureText'))
     }
 })
+
+/* ── SKLauncher (cuentas no-premium) ─────────────────────────── */
+function launchSKLauncher() {
+    const path = require('path')
+    const fs   = require('fs')
+    const { spawn } = require('child_process')
+
+    const baseDir = isDev
+        ? path.join(remote.app.getAppPath(), 'libraries', 'sklauncher')
+        : path.join(process.resourcesPath, 'libraries', 'sklauncher')
+
+    const exePath = path.join(baseDir, 'SKlauncher.exe')
+    const jarPath = path.join(baseDir, 'SKlauncher.jar')
+
+    setLaunchDetails('Abriendo SKLauncher...')
+    toggleLaunchArea(true)
+
+    let proc
+    if (fs.existsSync(exePath)) {
+        proc = spawn(exePath, [], { detached: true, stdio: 'ignore' })
+    } else if (fs.existsSync(jarPath)) {
+        const jExe = ConfigManager.getJavaExecutable(ConfigManager.getSelectedServer()) || 'javaw'
+        proc = spawn(jExe, ['-jar', jarPath], { detached: true, stdio: 'ignore' })
+    } else {
+        toggleLaunchArea(false)
+        showLaunchFailure(
+            'SKLauncher no encontrado',
+            'Coloca SKlauncher.exe o SKlauncher.jar en libraries/sklauncher/ y recompila el launcher.'
+        )
+        return
+    }
+
+    proc.unref()
+    setTimeout(() => toggleLaunchArea(false), 2000)
+}
 
 // Bind settings button
 document.getElementById('settingsMediaButton').onclick = async e => {
