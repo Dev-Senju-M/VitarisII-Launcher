@@ -1,8 +1,11 @@
-// NOTE FOR THIRD-PARTY
-// REPLACE THIS CLIENT ID WITH YOUR APPLICATION ID.
-// SEE https://github.com/dscalzi/HeliosLauncher/blob/master/docs/MicrosoftAuth.md
-exports.AZURE_CLIENT_ID = 'a5737175-5898-4890-b140-43061bdc3e5a'
-// SEE NOTE ABOVE.
+// TODO: Replace with your Azure App Registration Application (client) ID.
+// Steps: https://github.com/dscalzi/HeliosLauncher/blob/master/docs/MicrosoftAuth.md
+// 1. portal.azure.com → Entra ID → App registrations → New registration
+// 2. Supported accounts: Personal Microsoft accounts only
+// 3. Redirect URI: Mobile/desktop → https://login.microsoftonline.com/common/oauth2/nativeclient
+// 4. Authentication → Allow public client flows: Yes
+// 5. API permissions → Xbox Live → XboxLive.signin (delegated)
+exports.AZURE_CLIENT_ID = 'TU_APP_CLIENT_ID_AQUI'
 
 
 // Opcodes
