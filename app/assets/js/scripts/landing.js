@@ -155,6 +155,7 @@ function updateSelectedAccount(authUser){
     user_text.innerHTML = username
 }
 updateSelectedAccount(ConfigManager.getSelectedAccount())
+checkAdminRole()
 
 // Bind selected server
 function updateSelectedServer(serv){
@@ -1024,3 +1025,24 @@ async function loadNews(){
 
     return await promise
 }
+
+/* ── Admin Role ─────────────────────────────────────────────── */
+
+async function checkAdminRole() {
+    try {
+        const distro  = await DistroAPI.getDistribution()
+        const admins  = (distro.rawDistribution.admins || []).map(a => a.toLowerCase())
+        const account = ConfigManager.getSelectedAccount()
+        const isAdmin = account && admins.includes(account.displayName.toLowerCase())
+        document.getElementById('adminPanelButton').style.display = isAdmin ? 'block' : 'none'
+    } catch (_) {
+        document.getElementById('adminPanelButton').style.display = 'none'
+    }
+}
+
+function openAdminPanel() {
+    switchView(getCurrentView(), VIEWS.admin, 500, 500, () => {}, () => {
+        if (typeof adminInit === 'function') adminInit()
+    })
+}
+/* ──────────────────────────────────────────────────────────── */

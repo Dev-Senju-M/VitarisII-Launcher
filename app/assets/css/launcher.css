@@ -4210,5 +4210,23 @@ input:checked + .toggleSwitchSlider:before {
     font-weight: 700 !important;
     border: none !important;
 }
+
+/* === Botón admin en landing ================================== */
+#adminPanelButton {
+    background: rgba(212,172,13,0.08);
+    border: 1px solid var(--border);
+    color: var(--accent-amber);
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 11px;
+    width: 100%;
+    text-align: center;
+    transition: background 0.2s;
+    margin-bottom: 6px;
+    display: none;
+}
+#adminPanelButton:hover { background: rgba(212,172,13,0.18); }
+/* ============================================================= */
 .adminError { color: #e74c3c; font-size: 11px; min-height: 14px; }
 /* ============================================================= */

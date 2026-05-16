@@ -104,6 +104,8 @@
                 <div id="launch_content">
                     <button id="launch_button"><%- lang('landing.launchButton') %></button>
                     <div class="bot_divider"></div>
+                    <!-- Panel Admin — solo visible para admins -->
+                    <button id="adminPanelButton" style="display:none;" onclick="openAdminPanel()">&#9881; Panel Admin</button>
                     <button id="server_selection_button" class="bot_label"><%- lang('landing.launchButtonPlaceholder') %></button>
                 </div>
                 <div id="launch_details">
