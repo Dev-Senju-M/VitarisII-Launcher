@@ -155,7 +155,6 @@ function updateSelectedAccount(authUser){
     user_text.innerHTML = username
 }
 updateSelectedAccount(ConfigManager.getSelectedAccount())
-checkAdminRole()
 
 // Bind selected server
 function updateSelectedServer(serv){

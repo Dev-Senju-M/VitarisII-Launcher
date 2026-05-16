@@ -7,37 +7,39 @@
     </div>
 
     <div id="loginContent">
-        <img id="loginImageSeal" src="assets/images/SealCircle.png"/>
-        <span id="loginSubheader"><%- lang('login.loginSubheader') %></span>
+        <form id="loginForm">
+            <img id="loginImageSeal" src="assets/images/SealCircle.png"/>
+            <span id="loginSubheader"><%- lang('login.loginSubheader') %></span>
 
-        <!-- Botón Microsoft -->
-        <button id="loginMicrosoftButton" onclick="loginWithMicrosoft()">
-            Iniciar Sesión con Microsoft
-        </button>
-
-        <div id="loginDivider">
-            <span>o</span>
-        </div>
-
-        <!-- Modo offline / no-premium -->
-        <div id="loginOfflineForm">
-            <div id="loginOfflineUsernameField">
-                <input id="loginOfflineUsername"
-                       type="text"
-                       maxlength="16"
-                       placeholder="Nombre de usuario (offline)"
-                       autocomplete="off"/>
-                <span id="loginOfflineUsernameError" class="loginError"></span>
-            </div>
-            <button id="loginOfflineButton" disabled onclick="loginOffline()">
-                Entrar sin cuenta
+            <!-- Botón Microsoft -->
+            <button type="button" id="loginMicrosoftButton" onclick="loginWithMicrosoft()">
+                Iniciar Sesión con Microsoft
             </button>
-        </div>
 
-        <span id="loginOfflineDisclaimer">
-            Requiere estar en la whitelist del servidor.
-        </span>
+            <div id="loginDivider">
+                <span>o</span>
+            </div>
+
+            <!-- Modo offline / no-premium -->
+            <div id="loginOfflineForm">
+                <div id="loginOfflineUsernameField">
+                    <input id="loginOfflineUsername"
+                           type="text"
+                           maxlength="16"
+                           placeholder="Nombre de usuario (offline)"
+                           autocomplete="off"/>
+                    <span id="loginOfflineUsernameError" class="loginError"></span>
+                </div>
+                <button type="button" id="loginOfflineButton" disabled onclick="loginOffline()">
+                    Entrar sin cuenta
+                </button>
+            </div>
+
+            <span id="loginOfflineDisclaimer">
+                Requiere estar en la whitelist del servidor.
+            </span>
+        </form>
     </div>
 
-    <script src="assets/js/scripts/login.js"></script>
+    <script src="./assets/js/scripts/login.js"></script>
 </div>

@@ -61,6 +61,11 @@ body, button {
     color: white;
 }
 
+/* Brasa & Oro — base oscura para toda la app */
+body {
+    background-color: var(--bg-primary);
+}
+
 /*body {
     background: url('./../images/backgrounds/0.jpg') no-repeat center center fixed;
     background-size: cover;
@@ -400,7 +405,7 @@ body, button {
     height: 100%;
     width: 100%;
     transition: filter 0.25s ease;
-    background: rgba(0, 0, 0, 0.50);
+    background: radial-gradient(ellipse at center, var(--bg-deep) 0%, var(--bg-primary) 100%);
 }
 
 /* Login cancel button styles. */
@@ -502,7 +507,7 @@ body, button {
 /* Logo on login form. */
 #loginImageSeal {
     border-radius: 50%;
-    border: 2px solid #cad7e1;
+    border: 2px solid var(--accent-gold);
     background: rgba(1, 2, 1, 0.5);
     height: 125px;
     width: 125px;
@@ -517,6 +522,7 @@ body, button {
     font-size: 12px;
     letter-spacing: 1px;
     font-weight: bold;
+    color: var(--text-primary);
 }
 
 /* Container to organize login field elements. */

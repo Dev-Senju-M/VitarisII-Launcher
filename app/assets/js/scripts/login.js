@@ -13,6 +13,11 @@ let loginViewOnSuccess = VIEWS.landing
 let loginViewOnCancel  = VIEWS.settings
 let loginViewCancelHandler
 
+// Flag to distinguish whether THIS script initiated the Microsoft auth flow.
+// settings.js also listens on MSFT_OPCODE.REPLY_LOGIN; this prevents it from
+// consuming the single-use auth code when login.js initiated the flow.
+var msftLoginPending = false  // var so it's accessible on window for settings.js guard
+
 // === Elementos DOM ============================================
 const loginOfflineUsername = document.getElementById('loginOfflineUsername')
 const loginOfflineButton   = document.getElementById('loginOfflineButton')
@@ -40,6 +45,7 @@ loginOfflineUsername.addEventListener('keydown', e => {
 
 // === Login con Microsoft ======================================
 function loginWithMicrosoft() {
+    msftLoginPending = true
     loginFormDisabled(true)
     switchView(getCurrentView(), VIEWS.waiting, 500, 500, () => {
         ipcRenderer.send(
@@ -50,11 +56,12 @@ function loginWithMicrosoft() {
     })
 }
 
-// Handle Microsoft auth reply (SUCCESS path — auth code received)
+// Handle Microsoft auth reply — only when this script initiated the flow.
+// settings.js has its own handler for when it initiates Microsoft login from settings.
 ipcRenderer.on(MSFT_OPCODE.REPLY_LOGIN, async (_, ...args) => {
-    // Only handle replies that originated from the login view context.
-    // settings.js also listens to this event for its own Microsoft add-account flow.
-    // The viewOnClose argument tells us where to go on close.
+    if (!msftLoginPending) return
+    msftLoginPending = false
+
     if (args[0] === MSFT_REPLY_TYPE.ERROR) {
         const viewOnClose = args[2]
         switchView(getCurrentView(), viewOnClose, 500, 500, () => {
@@ -151,7 +158,9 @@ async function handlePostAuth(account, viewOnSuccess) {
     loginOfflineError.textContent = ''
     loginOfflineButton.disabled = true
     loginFormDisabled(false)
-    switchView(getCurrentView(), viewOnSuccess || VIEWS.landing)
+    switchView(getCurrentView(), viewOnSuccess || VIEWS.landing, 500, 500, () => {}, () => {
+        if (typeof checkAdminRole === 'function') checkAdminRole()
+    })
 }
 
 // === Helpers UI ==============================================
