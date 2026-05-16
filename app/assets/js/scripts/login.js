@@ -44,7 +44,6 @@
 
     // === Login con Microsoft ===============================================
     function loginWithMicrosoft() {
-        window.loginMsftLoginPending = true
         loginFormDisabled(true)
         switchView(getCurrentView(), VIEWS.waiting, 500, 500, () => {
             ipcRenderer.send(
@@ -55,10 +54,12 @@
         })
     }
 
-    // Handle Microsoft auth reply — solo cuando login.js inició el flujo.
+    // Handle Microsoft auth reply — solo para el flujo de login.
+    // args[2] en SUCCESS = viewOnSuccess enviado en OPEN_LOGIN = VIEWS.landing
+    // args[2] en ERROR   = viewOnClose enviado en OPEN_LOGIN   = VIEWS.login
+    // Cuando settings.js inicia el flujo, args[2] = VIEWS.settings → ignorar.
     ipcRenderer.on(MSFT_OPCODE.REPLY_LOGIN, async (_, ...args) => {
-        if (!window.loginMsftLoginPending) return
-        window.loginMsftLoginPending = false
+        if (args[2] === VIEWS.settings) return
 
         if (args[0] === MSFT_REPLY_TYPE.ERROR) {
             const viewOnClose = args[2]

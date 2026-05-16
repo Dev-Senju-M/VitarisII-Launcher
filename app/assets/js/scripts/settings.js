@@ -353,16 +353,15 @@ document.getElementById('settingsAddMojangAccount').onclick = (e) => {
 
 // Bind the add microsoft account button.
 document.getElementById('settingsAddMicrosoftAccount').onclick = (e) => {
-    window.settingsMsftLoginPending = true
     switchView(getCurrentView(), VIEWS.waiting, 500, 500, () => {
         ipcRenderer.send(MSFT_OPCODE.OPEN_LOGIN, VIEWS.settings, VIEWS.settings)
     })
 }
 
 // Bind reply for Microsoft Login — solo cuando settings.js inició el flujo.
+// args[2] = VIEWS.settings cuando el botón de settings abrió la ventana.
 ipcRenderer.on(MSFT_OPCODE.REPLY_LOGIN, (_, ...arguments_) => {
-    if (!window.settingsMsftLoginPending) return
-    window.settingsMsftLoginPending = false
+    if (arguments_[2] !== VIEWS.settings) return
 
     if (arguments_[0] === MSFT_REPLY_TYPE.ERROR) {
 
