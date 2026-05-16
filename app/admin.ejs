@@ -1,0 +1,53 @@
+<div id="adminContainer" style="display: none;">
+    <div id="adminHeader">
+        <button id="adminBackButton" onclick="adminBack()">&#8592; Volver</button>
+        <span id="adminTitle">Panel de Administración — Whitelist</span>
+        <span id="adminSyncStatus"></span>
+    </div>
+
+    <div id="adminToolbar">
+        <input id="adminSearch"
+               type="text"
+               placeholder="Buscar usuario..."
+               oninput="adminFilterUsers()"/>
+        <button id="adminAddButton" onclick="adminShowAddModal()">
+            + Agregar usuario
+        </button>
+    </div>
+
+    <div id="adminTableHeader">
+        <span class="adminCol">Usuario</span>
+        <span class="adminCol">Tipo de cuenta</span>
+        <span class="adminCol">Agregado</span>
+        <span class="adminCol"></span>
+    </div>
+
+    <div id="adminUserList"></div>
+
+    <div id="adminFooter">
+        <span id="adminUserCount"></span>
+        <span id="adminLastSync"></span>
+    </div>
+
+    <!-- Modal agregar usuario -->
+    <div id="adminAddModal" style="display:none;">
+        <div id="adminAddModalContent">
+            <h3>Agregar usuario a la whitelist</h3>
+            <input id="adminAddUsername"
+                   type="text"
+                   maxlength="16"
+                   placeholder="Nombre de usuario"/>
+            <select id="adminAddType">
+                <option value="microsoft">Microsoft</option>
+                <option value="offline">No-premium (offline)</option>
+            </select>
+            <span id="adminAddError" class="adminError"></span>
+            <div id="adminAddActions">
+                <button onclick="adminCancelAdd()">Cancelar</button>
+                <button id="adminConfirmAdd" onclick="adminConfirmAddUser()">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/scripts/admin.js"></script>
+</div>
