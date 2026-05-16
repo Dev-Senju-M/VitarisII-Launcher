@@ -426,7 +426,12 @@
             }
           ]
         }
-      ]
+      ],
+      "javaOptions": {
+        "supported": "17.x",
+        "suggestedMajor": 17,
+        "distribution": "TEMURIN"
+      }
     },
     {
       "id": "VitarisServerOptimizado-1.20.1",
@@ -853,7 +858,12 @@
             }
           ]
         }
-      ]
+      ],
+      "javaOptions": {
+        "supported": "17.x",
+        "suggestedMajor": 17,
+        "distribution": "TEMURIN"
+      }
     }
   ],
   "discord": {
