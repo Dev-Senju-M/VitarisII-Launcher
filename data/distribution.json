@@ -428,8 +428,8 @@
         }
       ],
       "javaOptions": {
-        "supported": "17.x",
-        "suggestedMajor": 17,
+        "supported": ">=17.x <22.x",
+        "suggestedMajor": 21,
         "distribution": "TEMURIN"
       }
     },
@@ -860,8 +860,8 @@
         }
       ],
       "javaOptions": {
-        "supported": "17.x",
-        "suggestedMajor": 17,
+        "supported": ">=17.x <22.x",
+        "suggestedMajor": 21,
         "distribution": "TEMURIN"
       }
     }
