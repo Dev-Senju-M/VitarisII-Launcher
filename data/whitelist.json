@@ -1,8 +1,14 @@
 [
-    {
-        "username": "JasoonGT",
-        "uuid": "microsoft-jasongt",
-        "type": "microsoft",
-        "addedAt": "2026-05-15"
-    }
+  {
+    "username": "JasoonGT",
+    "uuid": "microsoft-jasongt",
+    "type": "microsoft",
+    "addedAt": "2026-05-15"
+  },
+  {
+    "username": "Anohana987",
+    "uuid": "microsoft-anohana987",
+    "type": "microsoft",
+    "addedAt": "2026-05-16"
+  }
 ]
