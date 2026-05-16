@@ -5,7 +5,7 @@
 // 3. Redirect URI: Mobile/desktop → https://login.microsoftonline.com/common/oauth2/nativeclient
 // 4. Authentication → Allow public client flows: Yes
 // 5. API permissions → Xbox Live → XboxLive.signin (delegated)
-exports.AZURE_CLIENT_ID = '796686f9-ac69-4280-9bbc-bf575f42bed7'
+exports.AZURE_CLIENT_ID = 'a5737175-5898-4890-b140-43061bdc3e5a'
 
 
 // Opcodes
