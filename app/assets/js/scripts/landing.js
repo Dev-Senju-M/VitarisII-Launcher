@@ -1028,13 +1028,18 @@ async function loadNews(){
 /* ── Admin Role ─────────────────────────────────────────────── */
 
 async function checkAdminRole() {
+    const ADMINS_URL = 'https://raw.githubusercontent.com/Dev-Senju-M/VitarisII-Launcher/main/data/admins.json'
     try {
-        const distro  = await DistroAPI.getDistribution()
-        const admins  = (distro.rawDistribution.admins || []).map(a => a.toLowerCase())
+        const res     = await fetch(ADMINS_URL)
+        const admins  = (await res.json()).map(a => a.toLowerCase())
         const account = ConfigManager.getSelectedAccount()
+        console.log('[Admin] admins list:', admins)
+        console.log('[Admin] account displayName:', account && account.displayName)
         const isAdmin = account && admins.includes(account.displayName.toLowerCase())
+        console.log('[Admin] isAdmin:', isAdmin)
         document.getElementById('adminPanelButton').style.display = isAdmin ? 'block' : 'none'
-    } catch (_) {
+    } catch (err) {
+        console.error('[Admin] checkAdminRole error:', err)
         document.getElementById('adminPanelButton').style.display = 'none'
     }
 }

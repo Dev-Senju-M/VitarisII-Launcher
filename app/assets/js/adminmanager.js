@@ -1,9 +1,9 @@
 const got           = require('got')
 const ConfigManager = require('./configmanager')
 
-const GITHUB_OWNER   = 'Vitaris'
-const GITHUB_REPO    = 'vitaris-distro'
-const WHITELIST_PATH = 'whitelist.json'
+const GITHUB_OWNER   = 'Dev-Senju-M'
+const GITHUB_REPO    = 'VitarisII-Launcher'
+const WHITELIST_PATH = 'data/whitelist.json'
 const API_BASE       = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${WHITELIST_PATH}`
 
 function getToken() {
