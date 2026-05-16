@@ -3,7 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const ConfigManager = require('./configmanager')
 
-const WHITELIST_URL = 'https://raw.githubusercontent.com/Vitaris/vitaris-distro/main/whitelist.json'
+const WHITELIST_URL = 'https://raw.githubusercontent.com/Dev-Senju-M/VitarisII-Launcher/main/data/whitelist.json'
 
 function getCachePath() {
     return path.join(ConfigManager.getLauncherDirectory(), 'whitelist.json')
