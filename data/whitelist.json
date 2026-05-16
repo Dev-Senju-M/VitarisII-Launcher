@@ -13,8 +13,8 @@
   },
   {
     "username": "Senju",
-    "uuid": "c42638fa-9cc2-32ae-9491-96d0a18421c3",
-    "type": "offline",
+    "uuid": "microsoft-senju",
+    "type": "microsoft",
     "addedAt": "2026-05-16"
   }
 ]
