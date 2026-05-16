@@ -2,7 +2,7 @@
 // Flujo de autenticación dual: Microsoft OAuth2 + offline no-premium
 
 const { MSFT_OPCODE, MSFT_REPLY_TYPE, MSFT_ERROR } = require('./assets/js/ipcconstants')
-const AuthManager  = require('./assets/js/authmanager')
+// AuthManager ya declarado por uibinder.js en el scope global — no redeclarar
 const WhitelistMgr = require('./assets/js/whitelistmanager')
 const { LoggerUtil } = require('helios-core')
 

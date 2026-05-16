@@ -1,9 +1,11 @@
 // admin.js — VitarisLauncher
 // Controller del panel de administración de whitelist
 
-const WhitelistMgr = require('../whitelistmanager')
-const AdminMgr     = require('../adminmanager')
-const AuthMgr      = require('../authmanager')
+// Paths relativos a app/ (directorio de la página HTML en el renderer de Electron)
+// Prefijo Admin_ para evitar conflicto de scope con las mismas const en login.js
+const AdminWhitelistMgr = require('./assets/js/whitelistmanager')
+const AdminMgr          = require('./assets/js/adminmanager')
+const AdminAuthMgr      = AuthManager  // ya declarado globalmente por uibinder.js
 
 let _whitelist = []
 let _token     = null
@@ -23,7 +25,7 @@ async function adminInit() {
 
 async function adminRefresh() {
     try {
-        _whitelist = await WhitelistMgr.fetchWhitelist()
+        _whitelist = await AdminWhitelistMgr.fetchWhitelist()
         adminRenderList(_whitelist)
         adminUpdateFooter()
         document.getElementById('adminSyncStatus').textContent =
@@ -96,7 +98,7 @@ async function adminConfirmAddUser() {
 
     try {
         const uuid = type === 'offline'
-            ? AuthMgr.generateOfflineUUID(username)
+            ? AdminAuthMgr.generateOfflineUUID(username)
             : 'microsoft-' + username.toLowerCase()
         _whitelist = await AdminMgr.addUser(_whitelist, username, uuid, type, _token)
         adminRenderList(_whitelist)
