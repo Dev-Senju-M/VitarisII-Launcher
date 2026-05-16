@@ -1,3 +1,6 @@
+/* Github Code Highlighting. */
+@import "../../../node_modules/github-syntax-dark/lib/github-dark.css";
+
 /* === Vitaris — Brasa & Oro =================================== */
 :root {
   --bg-primary:   #0d0800;
@@ -12,9 +15,6 @@
   --border:       rgba(212, 172, 13, 0.18);
 }
 /* ============================================================= */
-
-/* Github Code Highlighting. */
-@import "../../../node_modules/github-syntax-dark/lib/github-dark.css";
 
 /*******************************************************************************
  *                                                                             *
