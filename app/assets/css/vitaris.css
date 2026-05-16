@@ -442,6 +442,18 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+#sidebarLogoutBtn {
+    background: none;
+    border: none;
+    color: var(--lava);
+    font-size: 10px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+#sidebarLogoutBtn:hover { opacity: 1; }
 
 /* Navigation */
 #sidebarNav {

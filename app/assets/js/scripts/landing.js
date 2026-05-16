@@ -1027,15 +1027,29 @@ async function loadNews(){
 
 async function checkAdminRole() {
     const ADMINS_URL = 'https://raw.githubusercontent.com/Dev-Senju-M/VitarisII-Launcher/main/data/admins.json'
+    const btn = document.getElementById('adminPanelButton')
     try {
-        const res     = await fetch(ADMINS_URL)
-        const admins  = (await res.json()).map(a => a.toLowerCase())
+        const res    = await fetch(ADMINS_URL)
+        const admins = (await res.json()).map(a => a.toLowerCase())
         const account = ConfigManager.getSelectedAccount()
-        const isAdmin = account && admins.includes(account.displayName.toLowerCase())
-        document.getElementById('adminPanelButton').style.display = isAdmin ? '' : 'none'
+        if (!account) { btn.style.display = 'none'; return }
+        const name = (account.displayName || account.username || '').toLowerCase()
+        const isAdmin = admins.includes(name)
+        console.log('[Admin] account:', name, '| admins:', admins, '| isAdmin:', isAdmin)
+        btn.style.display = isAdmin ? 'block' : 'none'
     } catch (err) {
         console.error('[Admin] checkAdminRole error:', err)
-        document.getElementById('adminPanelButton').style.display = 'none'
+        // Fallback: check local admins list
+        try {
+            const { admins: localAdmins } = require('./assets/js/adminmanager')
+            const account = ConfigManager.getSelectedAccount()
+            if (account) {
+                const name = (account.displayName || account.username || '').toLowerCase()
+                btn.style.display = localAdmins && localAdmins.includes(name) ? 'block' : 'none'
+            }
+        } catch (_) {
+            btn.style.display = 'none'
+        }
     }
 }
 
@@ -1044,4 +1058,18 @@ function openAdminPanel() {
         if (typeof adminInit === 'function') adminInit()
     })
 }
+
+document.getElementById('adminPanelButton').addEventListener('click', openAdminPanel)
+/* ── Logout ─────────────────────────────────────────────────── */
+
+document.getElementById('sidebarLogoutBtn').addEventListener('click', () => {
+    const account = ConfigManager.getSelectedAccount()
+    if (!account) return
+
+    // Remove account locally regardless of type — simpler than browser-based MS logout
+    ConfigManager.removeAuthAccount(account.uuid)
+    ConfigManager.save()
+    switchView(getCurrentView(), VIEWS.loginOptions, 500, 500)
+})
+
 /* ──────────────────────────────────────────────────────────── */

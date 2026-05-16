@@ -77,15 +77,21 @@ async function adminInit() {
 }
 
 async function adminRefresh() {
+    const statusEl = document.getElementById('adminSyncStatus')
     try {
         _whitelist = await AdminWhitelistMgr.fetchWhitelist()
-        adminRenderList(_whitelist)
-        adminUpdateFooter()
-        document.getElementById('adminSyncStatus').textContent =
-            'Sincronizado: ' + new Date().toLocaleTimeString()
+        statusEl.textContent = 'Sincronizado: ' + new Date().toLocaleTimeString()
     } catch (err) {
-        document.getElementById('adminSyncStatus').textContent = 'Error de sincronización'
+        const cached = AdminWhitelistMgr.loadCachedWhitelist()
+        if (cached.length > 0) {
+            _whitelist = cached
+            statusEl.textContent = 'Sin conexión — mostrando caché local'
+        } else {
+            statusEl.textContent = 'Error de sincronización: ' + (err.message || 'sin conexión')
+        }
     }
+    adminRenderList(_whitelist)
+    adminUpdateFooter()
 }
 
 // === List render =======================================================
@@ -176,7 +182,8 @@ async function adminConfirmAddUser() {
         adminUpdateFooter()
         adminCancelAdd()
     } catch (err) {
-        errEl.textContent = 'Error al guardar: ' + (err.message || 'desconocido')
+        const msg = err.response ? `HTTP ${err.response.statusCode}` : (err.message || 'desconocido')
+        errEl.textContent = 'Error al guardar: ' + msg
     } finally {
         document.getElementById('adminConfirmAdd').disabled = false
     }
