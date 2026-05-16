@@ -149,7 +149,7 @@ function updateSelectedAccount(authUser){
             username = authUser.displayName
         }
         if(authUser.uuid != null){
-            document.getElementById('avatarContainer').style.backgroundImage = `url('https://mc-heads.net/body/${authUser.uuid}/right')`
+            document.getElementById('avatarContainer').style.backgroundImage = `url('https://mc-heads.net/player/${authUser.uuid}')`
         }
     }
     user_text.innerHTML = username
@@ -671,19 +671,17 @@ function slide_(up){
     newsGlideCount++
 
     if(up){
-        lCUpper.style.top = '-200vh'
-        lCLLeft.style.top = '-200vh'
-        lCLCenter.style.top = '-200vh'
-        lCLRight.style.top = '-200vh'
-        newsBtn.style.top = '130vh'
-        newsContainer.style.top = '0px'
-        //date.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric'})
-        //landingContainer.style.background = 'rgba(29, 29, 29, 0.55)'
+        if(lCUpper)   lCUpper.style.top    = '-200vh'
+        if(lCLLeft)   lCLLeft.style.top    = '-200vh'
+        if(lCLCenter) lCLCenter.style.top  = '-200vh'
+        if(lCLRight)  lCLRight.style.top   = '-200vh'
+        if(newsBtn)   newsBtn.style.top     = '130vh'
+        if(newsContainer) newsContainer.style.top = '0px'
         landingContainer.style.background = 'rgba(0, 0, 0, 0.50)'
         setTimeout(() => {
             if(newsGlideCount === 1){
-                lCLCenter.style.transition = 'none'
-                newsBtn.style.transition = 'none'
+                if(lCLCenter) lCLCenter.style.transition = 'none'
+                if(newsBtn)   newsBtn.style.transition    = 'none'
             }
             newsGlideCount--
         }, 2000)
@@ -692,14 +690,14 @@ function slide_(up){
             newsGlideCount--
         }, 2000)
         landingContainer.style.background = null
-        lCLCenter.style.transition = null
-        newsBtn.style.transition = null
-        newsContainer.style.top = '100%'
-        lCUpper.style.top = '0px'
-        lCLLeft.style.top = '0px'
-        lCLCenter.style.top = '0px'
-        lCLRight.style.top = '0px'
-        newsBtn.style.top = '10px'
+        if(lCLCenter) lCLCenter.style.transition = null
+        if(newsBtn)   newsBtn.style.transition    = null
+        if(newsContainer) newsContainer.style.top = '100%'
+        if(lCUpper)   lCUpper.style.top   = '0px'
+        if(lCLLeft)   lCLLeft.style.top   = '0px'
+        if(lCLCenter) lCLCenter.style.top = '0px'
+        if(lCLRight)  lCLRight.style.top  = '0px'
+        if(newsBtn)   newsBtn.style.top    = '10px'
     }
 }
 
@@ -1033,11 +1031,8 @@ async function checkAdminRole() {
         const res     = await fetch(ADMINS_URL)
         const admins  = (await res.json()).map(a => a.toLowerCase())
         const account = ConfigManager.getSelectedAccount()
-        console.log('[Admin] admins list:', admins)
-        console.log('[Admin] account displayName:', account && account.displayName)
         const isAdmin = account && admins.includes(account.displayName.toLowerCase())
-        console.log('[Admin] isAdmin:', isAdmin)
-        document.getElementById('adminPanelButton').style.display = isAdmin ? 'block' : 'none'
+        document.getElementById('adminPanelButton').style.display = isAdmin ? '' : 'none'
     } catch (err) {
         console.error('[Admin] checkAdminRole error:', err)
         document.getElementById('adminPanelButton').style.display = 'none'

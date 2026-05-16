@@ -172,6 +172,10 @@
         if (val) { $(el).show() } else { $(el).hide() }
     }
 
+    // Button event listeners (inline onclick removed for CSP compliance)
+    document.getElementById('loginMicrosoftButton').addEventListener('click', loginWithMicrosoft)
+    document.getElementById('loginOfflineButton').addEventListener('click', loginOffline)
+
     // Cancel button
     document.getElementById('loginCancelButton').onclick = () => {
         switchView(getCurrentView(), window.loginViewOnCancel, 500, 500, () => {

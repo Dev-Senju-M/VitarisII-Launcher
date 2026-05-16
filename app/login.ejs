@@ -1,6 +1,6 @@
 <div id="loginContainer" style="display: none;">
     <div id="loginCancelContainer" style="display: none;">
-        <button id="loginCancelButton" onclick="loginCancelEnabled(false)">
+        <button id="loginCancelButton">
             <div id="loginCancelIcon">&#x2715;</div>
             <span id="loginCancelText"><%- lang('login.loginCancelText') %></span>
         </button>
@@ -11,8 +11,7 @@
             <img id="loginImageSeal" src="assets/images/SealCircle.png"/>
             <span id="loginSubheader"><%- lang('login.loginSubheader') %></span>
 
-            <!-- Botón Microsoft -->
-            <button type="button" id="loginMicrosoftButton" onclick="loginWithMicrosoft()">
+            <button type="button" id="loginMicrosoftButton">
                 Iniciar Sesión con Microsoft
             </button>
 
@@ -20,7 +19,6 @@
                 <span>o</span>
             </div>
 
-            <!-- Modo offline / no-premium -->
             <div id="loginOfflineForm">
                 <div id="loginOfflineUsernameField">
                     <input id="loginOfflineUsername"
@@ -30,7 +28,7 @@
                            autocomplete="off"/>
                     <span id="loginOfflineUsernameError" class="loginError"></span>
                 </div>
-                <button type="button" id="loginOfflineButton" disabled onclick="loginOffline()">
+                <button type="button" id="loginOfflineButton" disabled>
                     Entrar sin cuenta
                 </button>
             </div>

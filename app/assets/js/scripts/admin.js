@@ -1,20 +1,73 @@
 // admin.js — VitarisLauncher
-// Controller del panel de administración de whitelist
+;(function () {
 
-// Paths relativos a app/ (directorio de la página HTML en el renderer de Electron)
-// Prefijo Admin_ para evitar conflicto de scope con las mismas const en login.js
 const AdminWhitelistMgr = require('./assets/js/whitelistmanager')
 const AdminMgr          = require('./assets/js/adminmanager')
-const AdminAuthMgr      = AuthManager  // ya declarado globalmente por uibinder.js
+const AdminAuthMgr      = AuthManager  // global from uibinder.js
 
 let _whitelist = []
 let _token     = null
 
+// === Token modal (replaces prompt()) ===================================
+function adminPromptToken() {
+    return new Promise(resolve => {
+        const modal      = document.getElementById('adminTokenModal')
+        const input      = document.getElementById('adminTokenInput')
+        const confirmBtn = document.getElementById('adminTokenConfirmBtn')
+        const cancelBtn  = document.getElementById('adminTokenCancelBtn')
+
+        input.value = ''
+        modal.style.display = 'flex'
+        setTimeout(() => input.focus(), 50)
+
+        function done(val) {
+            modal.style.display = 'none'
+            confirmBtn.removeEventListener('click', onConfirm)
+            cancelBtn.removeEventListener('click', onCancel)
+            input.removeEventListener('keydown', onKey)
+            resolve(val || null)
+        }
+        function onConfirm() { done(input.value.trim()) }
+        function onCancel()  { done(null) }
+        function onKey(e)    { if (e.key === 'Enter') onConfirm() }
+
+        confirmBtn.addEventListener('click', onConfirm)
+        cancelBtn.addEventListener('click', onCancel)
+        input.addEventListener('keydown', onKey)
+    })
+}
+
+// === Confirm modal (replaces confirm()) ================================
+function adminConfirmAction(message) {
+    return new Promise(resolve => {
+        const modal      = document.getElementById('adminConfirmModal')
+        const msgEl      = document.getElementById('adminConfirmMessage')
+        const confirmBtn = document.getElementById('adminConfirmOk')
+        const cancelBtn  = document.getElementById('adminConfirmModalCancel')
+
+        msgEl.textContent = message
+        modal.style.display = 'flex'
+
+        function done(val) {
+            modal.style.display = 'none'
+            confirmBtn.removeEventListener('click', onYes)
+            cancelBtn.removeEventListener('click', onNo)
+            resolve(val)
+        }
+        function onYes() { done(true) }
+        function onNo()  { done(false) }
+
+        confirmBtn.addEventListener('click', onYes)
+        cancelBtn.addEventListener('click', onNo)
+    })
+}
+
+// === Init ==============================================================
 async function adminInit() {
     _token = AdminMgr.getToken()
 
     if (!_token) {
-        const input = prompt('Ingresa tu GitHub Personal Access Token (permisos: repo):')
+        const input = await adminPromptToken()
         if (!input) { adminBack(); return }
         AdminMgr.setToken(input)
         _token = input
@@ -35,6 +88,7 @@ async function adminRefresh() {
     }
 }
 
+// === List render =======================================================
 function adminRenderList(list) {
     const container = document.getElementById('adminUserList')
     container.innerHTML = ''
@@ -42,13 +96,28 @@ function adminRenderList(list) {
         const row = document.createElement('div')
         row.className = 'adminRow'
         row.dataset.username = entry.username.toLowerCase()
-        const typeLabel = entry.type === 'microsoft' ? 'Microsoft' : 'No-premium'
-        row.innerHTML = `
-            <span class="adminRowUsername">${entry.username}</span>
-            <span class="adminRowType-${entry.type}">● ${typeLabel}</span>
-            <span class="adminRowDate">${entry.addedAt || '—'}</span>
-            <button class="adminRemoveBtn" onclick="adminRemoveUser('${entry.username}')">Quitar</button>
-        `
+
+        const usernameSpan = document.createElement('span')
+        usernameSpan.className = 'adminRowUsername'
+        usernameSpan.textContent = entry.username
+
+        const typeSpan = document.createElement('span')
+        typeSpan.className = `adminRowType-${entry.type}`
+        typeSpan.textContent = `● ${entry.type === 'microsoft' ? 'Microsoft' : 'No-premium'}`
+
+        const dateSpan = document.createElement('span')
+        dateSpan.className = 'adminRowDate'
+        dateSpan.textContent = entry.addedAt || '—'
+
+        const removeBtn = document.createElement('button')
+        removeBtn.className = 'adminRemoveBtn'
+        removeBtn.textContent = 'Quitar'
+        removeBtn.addEventListener('click', () => adminRemoveUser(entry.username))
+
+        row.appendChild(usernameSpan)
+        row.appendChild(typeSpan)
+        row.appendChild(dateSpan)
+        row.appendChild(removeBtn)
         container.appendChild(row)
     })
 }
@@ -61,6 +130,7 @@ function adminUpdateFooter() {
         'Última sync: ' + new Date().toLocaleTimeString()
 }
 
+// === Search filter =====================================================
 function adminFilterUsers() {
     const q = document.getElementById('adminSearch').value.toLowerCase()
     document.querySelectorAll('.adminRow').forEach(row => {
@@ -68,6 +138,7 @@ function adminFilterUsers() {
     })
 }
 
+// === Add modal =========================================================
 function adminShowAddModal() {
     document.getElementById('adminAddModal').style.display = 'flex'
     document.getElementById('adminAddUsername').value = ''
@@ -111,17 +182,37 @@ async function adminConfirmAddUser() {
     }
 }
 
+// === Remove user =======================================================
 async function adminRemoveUser(username) {
-    if (!confirm(`¿Quitar a "${username}" de la whitelist?`)) return
+    const ok = await adminConfirmAction(`¿Quitar a "${username}" de la whitelist?`)
+    if (!ok) return
     try {
         _whitelist = await AdminMgr.removeUser(_whitelist, username, _token)
         adminRenderList(_whitelist)
         adminUpdateFooter()
     } catch (err) {
-        alert('Error al quitar usuario: ' + (err.message || 'desconocido'))
+        document.getElementById('adminSyncStatus').textContent =
+            'Error al quitar: ' + (err.message || 'desconocido')
     }
 }
 
+// === Navigation ========================================================
 function adminBack() {
     switchView(getCurrentView(), VIEWS.landing)
 }
+
+// === Event listeners ===================================================
+document.getElementById('adminBackButton').addEventListener('click', adminBack)
+document.getElementById('adminSearch').addEventListener('input', adminFilterUsers)
+document.getElementById('adminAddButton').addEventListener('click', adminShowAddModal)
+document.getElementById('adminAddCancelBtn').addEventListener('click', adminCancelAdd)
+document.getElementById('adminConfirmAdd').addEventListener('click', adminConfirmAddUser)
+document.getElementById('adminAddUsername').addEventListener('keydown', e => {
+    if (e.key === 'Enter') adminConfirmAddUser()
+})
+
+// === Expose globals (called from landing.js and uibinder.js) ===========
+window.adminInit = adminInit
+window.adminBack = adminBack
+
+})()

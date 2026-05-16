@@ -1,0 +1,1448 @@
+/* =================================================================
+   VITARIS LAUNCHER — Brasa & Oro
+   Tema: Piedra oscura + Lava + Oro Antiguo
+   Ventana: 980×552 (sin marco, frameBar: 22px)
+   ================================================================= */
+
+/* ─── Variables ──────────────────────────────────────────────── */
+:root {
+    --bg-base:       #1A1410;
+    --bg-sidebar:    #110E0A;
+    --bg-panel:      #221A11;
+    --bg-hover:      #2D2318;
+    --bg-modal:      #1C1510;
+
+    --lava:          #FF4500;
+    --lava-dim:      #C43600;
+    --lava-glow:     rgba(255,69,0,0.30);
+
+    --gold:          #D4A017;
+    --gold-bright:   #F0C030;
+    --gold-dim:      #8B6810;
+    --gold-glow:     rgba(212,160,23,0.28);
+
+    --crimson:       #8B0000;
+
+    --text:          #EDE0C8;
+    --text-muted:    #907060;
+    --text-dim:      #4A3E35;
+
+    --border:        rgba(212,160,23,0.18);
+    --border-stone:  rgba(90,70,50,0.35);
+
+    --sidebar-w:     220px;
+    --frame-h:       22px;
+    --radius:        3px;
+}
+
+/* ─── Base global ─────────────────────────────────────────────── */
+body {
+    background-color: var(--bg-base) !important;
+    background-image: none !important;
+    color: var(--text);
+    font-family: 'Avenir Book', sans-serif;
+}
+
+::-webkit-scrollbar { width: 0; height: 0; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: transparent; }
+
+/* ─── Frame bar ───────────────────────────────────────────────── */
+#frameBar {
+    background: var(--bg-sidebar) !important;
+    border-bottom: 1px solid var(--border);
+}
+#frameTitleText {
+    color: var(--gold);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.7;
+}
+.frameButton:hover, .frameButton:focus {
+    background: rgba(212,160,23,0.12) !important;
+}
+#frameButton_close:hover, #frameButton_close:focus {
+    background: rgba(255,69,0,0.45) !important;
+}
+
+/* ─── #main ───────────────────────────────────────────────────── */
+#main {
+    background: none !important;
+}
+
+/* ─── Loading ─────────────────────────────────────────────────── */
+#loadingContainer {
+    background: var(--bg-base);
+    z-index: 9999;
+}
+#loadCenterImage {
+    filter: drop-shadow(0 0 18px var(--lava-glow)) drop-shadow(0 0 8px var(--gold-glow));
+    animation: vitarisPulse 2s ease-in-out infinite;
+}
+@keyframes vitarisPulse {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50%       { opacity: 1.0; transform: scale(1.04); }
+}
+
+/* ─── Waiting ─────────────────────────────────────────────────── */
+#waitingContainer {
+    background: var(--bg-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+#waitingContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+}
+.waitingSpinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--lava);
+    border-right-color: var(--gold);
+    border-radius: 50%;
+    animation: vitarisSpin 0.9s linear infinite;
+}
+@keyframes vitarisSpin { to { transform: rotate(360deg); } }
+#waitingContent h2 {
+    color: var(--text-muted);
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* ─── Welcome ─────────────────────────────────────────────────── */
+#welcomeContainer {
+    background: var(--bg-base);
+}
+
+/* ─── Login ───────────────────────────────────────────────────── */
+#loginContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background: var(--bg-base);
+}
+
+#loginCancelContainer {
+    position: absolute;
+    top: 16px;
+    left: 18px;
+    display: none;
+}
+#loginCancelButton {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 4px 0;
+    transition: color 0.2s;
+    outline: none;
+}
+#loginCancelButton:hover { color: var(--text); }
+#loginCancelIcon { font-size: 14px; }
+
+#loginContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+#loginForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px 44px;
+    width: 320px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.7), 0 0 30px var(--lava-glow);
+}
+
+#loginImageSeal {
+    width: 64px;
+    height: 64px;
+    filter: drop-shadow(0 0 10px var(--lava-glow));
+}
+
+#loginSubheader {
+    font-size: 18px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-family: 'Avenir Medium', sans-serif;
+}
+
+/* Microsoft button */
+#loginMicrosoftButton {
+    width: 100%;
+    height: 42px;
+    background: linear-gradient(135deg, var(--lava-dim), var(--lava));
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-size: 13px;
+    font-family: 'Avenir Medium', sans-serif;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: box-shadow 0.25s, opacity 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    outline: none;
+}
+#loginMicrosoftButton:hover {
+    box-shadow: 0 0 18px var(--lava-glow);
+}
+#loginMicrosoftButton:active { opacity: 0.85; }
+#loginMicrosoftButton:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+/* Divider */
+#loginDivider {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+    color: var(--text-dim);
+    font-size: 11px;
+}
+#loginDivider::before, #loginDivider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-stone);
+}
+
+/* Offline form */
+#loginOfflineForm {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+#loginOfflineUsernameField {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+#loginOfflineUsername {
+    width: 100%;
+    box-sizing: border-box;
+    height: 38px;
+    background: var(--bg-hover);
+    border: 1px solid var(--border-stone);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Avenir Book', sans-serif;
+    font-size: 13px;
+    padding: 0 12px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+#loginOfflineUsername:focus {
+    border-color: var(--gold-dim);
+}
+#loginOfflineUsernameError {
+    font-size: 11px;
+    color: var(--lava);
+    min-height: 14px;
+}
+.loginError {
+    font-size: 11px;
+    color: var(--lava);
+}
+
+#loginOfflineButton {
+    width: 100%;
+    height: 38px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--gold);
+    font-size: 13px;
+    font-family: 'Avenir Medium', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+#loginOfflineButton:hover:not(:disabled) {
+    background: rgba(212,160,23,0.1);
+    box-shadow: 0 0 12px var(--gold-glow);
+}
+#loginOfflineButton:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+#loginOfflineDisclaimer {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-align: center;
+    max-width: 260px;
+}
+
+/* Login Options */
+#loginOptionsContainer {
+    background: rgba(26,20,16,0.92) !important;
+}
+.loginOptionButton {
+    background: var(--bg-panel) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    border-radius: var(--radius) !important;
+}
+.loginOptionButton:hover, .loginOptionButton:focus {
+    background: var(--bg-hover) !important;
+    box-shadow: 0 0 12px var(--gold-glow) !important;
+    text-shadow: none !important;
+}
+
+/* ─── LANDING — Sidebar Layout ────────────────────────────────── */
+#landingContainer {
+    display: grid !important;
+    grid-template-columns: var(--sidebar-w) 1fr !important;
+    height: 100% !important;
+    width: 100% !important;
+    position: relative !important;
+    overflow: hidden !important;
+    background: var(--bg-base) !important;
+    top: auto !important;
+    transition: none !important;
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────────── */
+#vitarisSidebar {
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* Brand */
+#sidebarBrand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 16px;
+    gap: 8px;
+    position: relative;
+}
+#sidebarSealWrapper {
+    position: relative;
+    cursor: pointer;
+}
+#image_seal {
+    width: 52px;
+    height: 52px;
+    filter: drop-shadow(0 0 8px var(--lava-glow));
+    transition: filter 0.3s;
+    display: block;
+}
+#image_seal:hover {
+    filter: drop-shadow(0 0 14px var(--lava-glow)) drop-shadow(0 0 6px var(--gold-glow));
+}
+#updateAvailableTooltip {
+    display: none;
+    position: absolute;
+    left: 60px;
+    top: 0;
+    background: var(--lava);
+    color: #fff;
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 2px;
+    white-space: nowrap;
+}
+#sidebarTitle {
+    font-family: 'Avenir Medium', sans-serif;
+    font-size: 16px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+}
+
+.sidebarDivider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 16px;
+    flex-shrink: 0;
+}
+
+/* Account */
+#sidebarAccount {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 16px;
+    gap: 8px;
+}
+#avatarContainer {
+    width: 72px;
+    height: 110px;
+    background: transparent center bottom/contain no-repeat;
+    border: none;
+    border-radius: 0;
+    position: relative;
+    flex-shrink: 0;
+    transition: filter 0.2s;
+    image-rendering: auto;
+}
+#avatarContainer:hover {
+    filter: drop-shadow(0 0 8px var(--lava-glow));
+    border-color: var(--gold-dim);
+}
+#avatarOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    border: none;
+    color: var(--text);
+    font-size: 10px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: var(--radius);
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#avatarContainer:hover #avatarOverlay { opacity: 1; }
+#user_text {
+    font-size: 13px;
+    color: var(--text);
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Navigation */
+#sidebarNav {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 12px;
+    gap: 4px;
+}
+.sidebarNavBtn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Avenir Book', sans-serif;
+    font-size: 13px;
+    padding: 9px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    outline: none;
+    width: 100%;
+    text-align: left;
+    transition: background 0.2s, color 0.2s;
+}
+.sidebarNavBtn:hover {
+    background: var(--bg-hover);
+    color: var(--text);
+}
+.sidebarNavBtn:active { background: var(--bg-panel); }
+.sidebarNavIcon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    fill: currentColor;
+    opacity: 0.7;
+}
+.adminNavBtn {
+    color: var(--gold-dim) !important;
+}
+.adminNavBtn:hover {
+    color: var(--gold) !important;
+    background: rgba(212,160,23,0.08) !important;
+}
+
+/* Status */
+#sidebarStatus {
+    margin-top: auto;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.statusRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+#server_status_wrapper { flex-wrap: wrap; }
+#landingPlayerLabel { color: var(--text-dim); }
+#player_count {
+    color: var(--text-muted);
+    margin-left: auto;
+}
+#mojang_status_icon {
+    font-size: 16px;
+    line-height: 1;
+    transition: color 0.5s;
+}
+
+/* Mojang status tooltip */
+#mojangStatusWrapper { position: relative; cursor: default; }
+#mojangStatusTooltip {
+    display: none;
+    position: absolute;
+    bottom: 24px;
+    left: -8px;
+    background: var(--bg-modal);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    min-width: 180px;
+    font-size: 11px;
+    z-index: 200;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+#mojangStatusWrapper:hover #mojangStatusTooltip { display: block; }
+#mojangStatusTooltipTitle {
+    font-family: 'Avenir Medium', sans-serif;
+    color: var(--gold);
+    margin-bottom: 6px;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+}
+.mojangStatusContainer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 0;
+}
+.mojangStatusIcon { font-size: 14px; }
+.mojangStatusName { color: var(--text); }
+#mojangStatusNEContainer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0 4px;
+}
+.mojangStatusNEBar {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+#mojangStatusNETitle {
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+}
+
+/* Social links */
+#sidebarSocial {
+    padding: 8px 16px 12px;
+    border-top: 1px solid var(--border);
+}
+#externalMedia {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.mediaURL {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+}
+.mediaURL:hover { opacity: 0.85; }
+.mediaSVG {
+    width: 16px;
+    height: 16px;
+    fill: var(--text);
+}
+
+/* ─── Landing Main Content ────────────────────────────────────── */
+#landingMain {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-base);
+}
+
+/* Server selection header */
+#landingHeader {
+    padding: 16px 24px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+#server_selection_button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Avenir Book', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 0;
+    outline: none;
+    transition: color 0.2s;
+    letter-spacing: 0.3px;
+}
+#server_selection_button:hover { color: var(--gold); }
+
+/* News section */
+#newsSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+#newsButton {
+    border-bottom: none !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    padding: 9px 12px !important;
+    font-size: 13px !important;
+}
+.arrowLine { fill: none; stroke: currentColor; stroke-width: 2px; }
+#newsButtonSVG {
+    width: 14px;
+    height: 8px;
+    flex-shrink: 0;
+}
+#newsButtonAlert {
+    width: 7px;
+    height: 7px;
+    background: var(--lava);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+#newsButtonText { flex: 1; }
+
+/* News overlay — slides up from bottom over the main content area */
+#newsContainer {
+    position: absolute !important;
+    top: 100%;
+    left: var(--sidebar-w);
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    background: var(--bg-base);
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden;
+    transition: top 0.4s ease;
+}
+#newsContent {
+    flex: 1;
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-panel);
+}
+#newsStatusContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 24px 8px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+#newsTitleContainer { flex: 1; }
+#newsArticleTitle {
+    color: var(--text);
+    font-family: 'Avenir Medium', sans-serif;
+    font-size: 13px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+#newsArticleTitle:hover { color: var(--gold); }
+#newsMetaContainer {
+    display: flex;
+    gap: 12px;
+    margin-top: 3px;
+}
+#newsArticleDate, #newsArticleAuthor, #newsArticleComments {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-decoration: none;
+}
+#newsArticleComments:hover { color: var(--text-muted); }
+#newsNavigationContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+#newsNavigateLeft, #newsNavigateRight {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--text-dim);
+    transition: color 0.2s;
+    outline: none;
+}
+#newsNavigateLeft:hover, #newsNavigateRight:hover { color: var(--text); }
+#newsNavigationLeftSVG, #newsNavigationRightSVG {
+    width: 14px;
+    height: 8px;
+}
+#newsNavigationRightSVG { transform: rotate(180deg); }
+#newsNavigationStatus { font-size: 11px; color: var(--text-dim); }
+
+#newsArticleContainer {
+    flex: 1;
+    overflow: hidden;
+    padding: 14px 24px;
+}
+#newsArticleContent { height: 100%; overflow: hidden; }
+#newsArticleContentScrollable {
+    height: 100%;
+    overflow-y: auto;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.6;
+}
+
+#newsErrorContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.newsErrorContent {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+}
+#newsErrorRetry {
+    margin-top: 10px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: var(--radius);
+    padding: 5px 14px;
+    font-size: 11px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+#newsErrorRetry:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+/* ─── Launch Section ──────────────────────────────────────────── */
+#launchSection {
+    flex-shrink: 0;
+    padding: 16px 24px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-base);
+}
+#launch_content {
+    display: inline-flex !important;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+#launch_button {
+    width: 100%;
+    max-width: 320px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--crimson) 0%, var(--lava-dim) 50%, var(--lava) 100%);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-family: 'Avenir Medium', sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    outline: none;
+    transition: box-shadow 0.25s, transform 0.1s;
+    box-shadow: 0 2px 20px var(--lava-glow), 0 0 8px rgba(0,0,0,0.4);
+}
+#launch_button:hover {
+    box-shadow: 0 4px 30px var(--lava-glow), 0 0 16px var(--gold-glow);
+}
+#launch_button:active { transform: scale(0.98); }
+#launch_button:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+    box-shadow: none;
+}
+
+#launch_details {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+#launch_details_left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+#launch_progress_label {
+    font-size: 12px;
+    color: var(--gold);
+    font-family: 'Avenir Medium', sans-serif;
+    min-width: 36px;
+}
+#launch_details_right {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+#launch_progress {
+    width: 100%;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--bg-hover);
+    border-radius: 2px;
+    overflow: hidden;
+}
+#launch_progress::-webkit-progress-bar { background: var(--bg-hover); border-radius: 2px; }
+#launch_progress::-webkit-progress-value {
+    background: linear-gradient(90deg, var(--crimson), var(--lava));
+    border-radius: 2px;
+    box-shadow: 0 0 6px var(--lava-glow);
+}
+#launch_details_text, .bot_label {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+/* Hide slide_() compatibility stubs */
+#landingContainer > #upper,
+#landingContainer > #lower {
+    display: none !important;
+}
+
+/* ─── Overlay ─────────────────────────────────────────────────── */
+#overlayContainer {
+    background: rgba(17,14,10,0.88) !important;
+}
+#overlayTitle {
+    color: var(--gold) !important;
+    font-family: 'Avenir Medium', sans-serif !important;
+    letter-spacing: 1px;
+}
+#overlayDesc {
+    color: var(--text) !important;
+    font-weight: normal !important;
+}
+#overlayAcknowledge {
+    background: none !important;
+    border: 1px solid var(--lava-dim) !important;
+    color: var(--text) !important;
+    font-family: 'Avenir Medium', sans-serif !important;
+    border-radius: var(--radius) !important;
+    padding: 6px 20px !important;
+    transition: box-shadow 0.2s !important;
+}
+#overlayAcknowledge:hover {
+    box-shadow: 0 0 12px var(--lava-glow) !important;
+}
+#overlayDismiss { color: var(--text-muted) !important; font-size: 11px !important; }
+
+/* Server/account selection in overlay */
+.serverListing {
+    background: var(--bg-panel) !important;
+    border: 1px solid var(--border-stone) !important;
+    border-radius: var(--radius) !important;
+    transition: border-color 0.2s, opacity 0.2s !important;
+}
+.serverListing:hover, .serverListing:focus, .serverListing[selected] {
+    border-color: var(--gold-dim) !important;
+    background: var(--bg-hover) !important;
+}
+.accountListing {
+    background: var(--bg-panel) !important;
+    border-color: var(--border-stone) !important;
+    border-radius: var(--radius) !important;
+    color: var(--text) !important;
+}
+.accountListing:hover, .accountListing:focus {
+    border-color: var(--gold-dim) !important;
+    background: var(--bg-hover) !important;
+}
+.serverListingVersion {
+    background: rgba(212,160,23,0.7) !important;
+    color: #000 !important;
+}
+#serverSelectConfirm, #accountSelectConfirm {
+    background: none !important;
+    border: 1px solid var(--lava-dim) !important;
+    color: var(--text) !important;
+    border-radius: var(--radius) !important;
+}
+#serverSelectConfirm:hover, #accountSelectConfirm:hover {
+    box-shadow: 0 0 12px var(--lava-glow) !important;
+}
+
+/* ─── Admin Panel ─────────────────────────────────────────────── */
+#adminContainer {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-base);
+    overflow: hidden;
+}
+#adminHeader {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-sidebar);
+    flex-shrink: 0;
+}
+#adminBackButton {
+    background: none;
+    border: 1px solid var(--border-stone);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 5px 12px;
+    cursor: pointer;
+    outline: none;
+    transition: color 0.2s, border-color 0.2s;
+}
+#adminBackButton:hover { color: var(--text); border-color: var(--gold-dim); }
+#adminTitle {
+    font-family: 'Avenir Medium', sans-serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: var(--gold);
+    flex: 1;
+}
+#adminSyncStatus { font-size: 11px; color: var(--text-dim); }
+
+#adminToolbar {
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+#adminSearch {
+    flex: 1;
+    height: 34px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-stone);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Avenir Book', sans-serif;
+    font-size: 12px;
+    padding: 0 12px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+#adminSearch:focus { border-color: var(--gold-dim); }
+#adminSearch::placeholder { color: var(--text-dim); }
+#adminAddButton {
+    height: 34px;
+    background: none;
+    border: 1px solid var(--lava-dim);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 12px;
+    padding: 0 14px;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
+}
+#adminAddButton:hover {
+    background: rgba(255,69,0,0.1);
+    box-shadow: 0 0 8px var(--lava-glow);
+}
+
+#adminTableHeader {
+    display: grid;
+    grid-template-columns: 1fr 140px 100px 80px;
+    padding: 6px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+#adminTableHeader .adminCol {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+#adminUserList {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px;
+}
+.adminRow {
+    display: grid;
+    grid-template-columns: 1fr 140px 100px 80px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-stone);
+    font-size: 12px;
+    color: var(--text);
+}
+.adminRow:last-child { border-bottom: none; }
+.adminRowUsername { color: var(--text); font-family: 'Avenir Medium', sans-serif; }
+[class^="adminRowType-"] { font-size: 11px; color: var(--text-muted); }
+.adminRowDate { color: var(--text-dim); font-size: 11px; }
+.adminRemoveBtn {
+    background: none;
+    border: 1px solid var(--border-stone);
+    border-radius: var(--radius);
+    color: var(--lava-dim);
+    font-size: 11px;
+    padding: 3px 8px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s, color 0.2s;
+}
+.adminRemoveBtn:hover { border-color: var(--lava); color: var(--lava); }
+
+#adminFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 20px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--bg-sidebar);
+}
+#adminUserCount, #adminLastSync {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+/* Admin modals */
+#adminAddModal, #adminTokenModal, #adminConfirmModal {
+    position: absolute;
+    inset: 0;
+    background: rgba(17,14,10,0.88);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+#adminConfirmModalContent {
+    background: var(--bg-modal);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+}
+#adminConfirmModalContent h3 {
+    font-family: 'Avenir Medium', sans-serif;
+    font-size: 14px;
+    color: var(--gold);
+    margin: 0;
+}
+#adminConfirmMessage {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0;
+}
+#adminConfirmActions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+#adminConfirmActions button {
+    background: none;
+    border: 1px solid var(--border-stone);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 6px 14px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s, color 0.2s;
+}
+#adminConfirmOk {
+    border-color: var(--lava-dim) !important;
+    color: var(--text) !important;
+}
+#adminConfirmOk:hover { box-shadow: 0 0 8px var(--lava-glow); }
+
+#adminAddModalContent, #adminTokenModalContent {
+    background: var(--bg-modal);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+}
+#adminAddModalContent h3, #adminTokenModalContent h3 {
+    font-family: 'Avenir Medium', sans-serif;
+    font-size: 15px;
+    color: var(--gold);
+    margin: 0;
+}
+#adminTokenModalContent p {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0;
+}
+#adminTokenModalContent code {
+    background: var(--bg-hover);
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 11px;
+}
+#adminAddUsername, #adminTokenInput {
+    width: 100%;
+    box-sizing: border-box;
+    height: 36px;
+    background: var(--bg-hover);
+    border: 1px solid var(--border-stone);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Avenir Book', sans-serif;
+    font-size: 12px;
+    padding: 0 10px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+#adminAddUsername:focus, #adminTokenInput:focus { border-color: var(--gold-dim); }
+#adminAddType {
+    width: 100%;
+    height: 36px;
+    background: var(--bg-hover);
+    border: 1px solid var(--border-stone);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 12px;
+    padding: 0 10px;
+    outline: none;
+}
+.adminError { font-size: 11px; color: var(--lava); min-height: 14px; }
+#adminAddActions, #adminTokenActions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+#adminAddActions button, #adminTokenActions button {
+    background: none;
+    border: 1px solid var(--border-stone);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 6px 14px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s, color 0.2s;
+}
+#adminConfirmAdd, #adminTokenConfirmBtn {
+    border-color: var(--lava-dim) !important;
+    color: var(--text) !important;
+}
+#adminConfirmAdd:hover, #adminTokenConfirmBtn:hover {
+    box-shadow: 0 0 8px var(--lava-glow);
+}
+#adminAddActions button:hover, #adminTokenActions button:hover {
+    border-color: var(--border);
+    color: var(--text);
+}
+
+/* ─── Welcome Screen ──────────────────────────────────────────── */
+#welcomeContainer {
+    background: var(--bg-base);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+#welcomeContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 340px;
+    position: relative;
+    top: -5%;
+}
+#welcomeImageSeal {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg-panel);
+    box-shadow: 0 0 24px var(--lava-glow), 0 0 10px var(--gold-glow);
+    margin-bottom: 10px;
+    animation: vitarisPulse 2s ease-in-out infinite;
+}
+#welcomeHeader {
+    font-family: 'Avenir Medium', sans-serif;
+    font-size: 22px;
+    letter-spacing: 5px;
+    color: var(--gold);
+    text-align: center;
+    text-transform: uppercase;
+    text-shadow: none;
+    margin: 0;
+}
+#welcomeDescription {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.7;
+    text-shadow: none;
+    margin: 0;
+}
+#welcomeDescCTA {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    text-shadow: none;
+    margin: 0;
+}
+#welcomeButton {
+    margin-top: 18px;
+    background: linear-gradient(135deg, var(--crimson), var(--lava-dim), var(--lava));
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    font-family: 'Avenir Medium', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    outline: none;
+    transition: box-shadow 0.25s, transform 0.1s;
+    padding: 0;
+    right: auto;
+    position: relative;
+}
+#welcomeButtonContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 30px;
+}
+#welcomeSVG {
+    width: 18px;
+    height: 10px;
+    transform: rotate(90deg);
+    transition: transform 0.25s;
+    overflow: visible;
+    margin-left: 0;
+}
+#welcomeButton:hover {
+    box-shadow: 0 0 22px var(--lava-glow), 0 0 8px var(--gold-glow);
+    text-shadow: none;
+}
+#welcomeButton:hover #welcomeSVG { transform: rotate(90deg) translateX(3px); }
+#welcomeButton:active { transform: scale(0.97); }
+#welcomeButton:disabled { opacity: 0.4; pointer-events: none; }
+
+/* ─── Login Options ───────────────────────────────────────────── */
+#loginOptionsContainer {
+    background: var(--bg-base) !important;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+#loginOptionsContent { top: -5%; position: relative; }
+.loginOptionsMainContent h2 {
+    font-family: 'Avenir Medium', sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-weight: normal;
+    text-shadow: none;
+}
+.loginOptionButton {
+    background: var(--bg-panel) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    border-radius: var(--radius) !important;
+    height: 50px;
+    width: 100%;
+    text-align: left !important;
+    padding: 0 20px !important;
+    cursor: pointer;
+    outline: none !important;
+    transition: background 0.2s, box-shadow 0.2s !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    font-size: 13px !important;
+}
+.loginOptionButton:hover, .loginOptionButton:focus {
+    background: var(--bg-hover) !important;
+    box-shadow: 0 0 14px var(--gold-glow) !important;
+    text-shadow: none !important;
+    border-color: var(--gold-dim) !important;
+}
+#loginOptionCancelButton {
+    background: none !important;
+    border: none !important;
+    color: var(--text-dim) !important;
+    font-size: 13px !important;
+    cursor: pointer;
+    transition: color 0.2s !important;
+}
+#loginOptionCancelButton:hover { color: var(--text-muted) !important; text-shadow: none !important; }
+
+/* ─── Settings recolor ────────────────────────────────────────── */
+#settingsContainer {
+    background: var(--bg-base) !important;
+}
+#settingsContainer:before { background: none !important; }
+#settingsContainerLeft {
+    background: var(--bg-sidebar) !important;
+    border-right: 1px solid var(--border) !important;
+}
+#settingsNavHeaderText {
+    color: var(--gold) !important;
+    font-size: 16px !important;
+    letter-spacing: 3px !important;
+    text-transform: uppercase !important;
+    text-shadow: none !important;
+}
+.settingsNavItem { color: var(--text-dim) !important; font-size: 13px !important; }
+.settingsNavItem:hover, .settingsNavItem:focus {
+    color: var(--text) !important;
+    text-shadow: none !important;
+    background: rgba(255,255,255,0.03) !important;
+}
+.settingsNavItem[selected] { color: var(--gold) !important; text-shadow: none !important; }
+.settingsNavDivider { background: var(--border) !important; }
+#settingsNavDone { color: var(--text) !important; font-size: 13px !important; }
+#settingsNavDone:hover {
+    color: var(--gold) !important;
+    text-shadow: 0 0 12px var(--gold-glow) !important;
+}
+#settingsContainerRight { background: var(--bg-base) !important; }
+.settingsTab::-webkit-scrollbar { width: 0; height: 0; }
+#settingsContainer input[type=text],
+#settingsContainer input[type=number] {
+    background: var(--bg-hover) !important;
+    border-color: var(--border-stone) !important;
+    color: var(--text) !important;
+    border-radius: var(--radius) !important;
+}
+#settingsContainer input:focus {
+    border-color: var(--gold-dim) !important;
+    box-shadow: none !important;
+}
+#settingsContainer input[error] { border-color: var(--lava-dim) !important; }
+.settingsFieldTitle { color: var(--text) !important; text-shadow: none !important; }
+.settingsFieldDesc { color: var(--text-muted) !important; font-size: 11px !important; }
+.settingsDivider { background: var(--border) !important; }
+.settingsFieldContainer {
+    border-color: var(--border) !important;
+    background: transparent !important;
+}
+/* Toggle switches */
+.toggleSwitchSlider {
+    background: var(--bg-hover) !important;
+}
+.toggleSwitch input:checked + .toggleSwitchSlider {
+    background: var(--lava-dim) !important;
+}
+/* Memory slider */
+#settingsGameMemoryRange {
+    accent-color: var(--lava) !important;
+}
+/* Buttons in settings */
+.settingsButton, .solidButton {
+    background: none !important;
+    border: 1px solid var(--border-stone) !important;
+    color: var(--text) !important;
+    border-radius: var(--radius) !important;
+    transition: border-color 0.2s !important;
+}
+.settingsButton:hover, .solidButton:hover {
+    border-color: var(--gold-dim) !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+/* Mod/shaderpack listings */
+.modEntry, .shadEntry {
+    background: var(--bg-panel) !important;
+    border: 1px solid var(--border-stone) !important;
+    border-radius: var(--radius) !important;
+}
+.modEntry:hover, .shadEntry:hover {
+    background: var(--bg-hover) !important;
+    border-color: var(--border) !important;
+}
+.modName, .shadName { color: var(--text) !important; }
+.modVersion, .shadAuthor { color: var(--text-dim) !important; }
+/* Account entries in settings */
+.settingsAccountListEntry {
+    background: var(--bg-panel) !important;
+    border-color: var(--border-stone) !important;
+    border-radius: var(--radius) !important;
+}
+.settingsAccountListEntry[selected],
+.settingsAccountListEntry:hover {
+    background: var(--bg-hover) !important;
+    border-color: var(--gold-dim) !important;
+}
+#settMicrosoftAuthButton, #settDropAccountButton {
+    background: none !important;
+    border: 1px solid var(--border-stone) !important;
+    color: var(--text-muted) !important;
+    border-radius: var(--radius) !important;
+    transition: border-color 0.2s !important;
+}
+#settMicrosoftAuthButton:hover { border-color: var(--lava-dim) !important; color: var(--text) !important; }
+#settDropAccountButton:hover { border-color: var(--lava) !important; color: var(--lava) !important; }

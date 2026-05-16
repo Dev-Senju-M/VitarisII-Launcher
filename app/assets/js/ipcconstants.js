@@ -1,5 +1,5 @@
-// TODO: Replace with your Azure App Registration Application (client) ID.
-// Steps: https://github.com/dscalzi/HeliosLauncher/blob/master/docs/MicrosoftAuth.md
+// Azure App Registration Application (client) ID para VitarisLauncher.
+// Steps: https://github.com/Dev-Senju-M/VitarisII-Launcher/blob/main/docs/MicrosoftAuth.md
 // 1. portal.azure.com → Entra ID → App registrations → New registration
 // 2. Supported accounts: Personal Microsoft accounts only
 // 3. Redirect URI: Mobile/desktop → https://login.microsoftonline.com/common/oauth2/nativeclient

@@ -1,18 +1,14 @@
 <div id="adminContainer" style="display: none;">
+
     <div id="adminHeader">
-        <button id="adminBackButton" onclick="adminBack()">&#8592; Volver</button>
+        <button id="adminBackButton">&#8592; Volver</button>
         <span id="adminTitle">Panel de Administración — Whitelist</span>
         <span id="adminSyncStatus"></span>
     </div>
 
     <div id="adminToolbar">
-        <input id="adminSearch"
-               type="text"
-               placeholder="Buscar usuario..."
-               oninput="adminFilterUsers()"/>
-        <button id="adminAddButton" onclick="adminShowAddModal()">
-            + Agregar usuario
-        </button>
+        <input id="adminSearch" type="text" placeholder="Buscar usuario..."/>
+        <button id="adminAddButton">+ Agregar usuario</button>
     </div>
 
     <div id="adminTableHeader">
@@ -29,22 +25,44 @@
         <span id="adminLastSync"></span>
     </div>
 
-    <!-- Modal agregar usuario -->
+    <!-- Modal: agregar usuario -->
     <div id="adminAddModal" style="display:none;">
         <div id="adminAddModalContent">
             <h3>Agregar usuario a la whitelist</h3>
-            <input id="adminAddUsername"
-                   type="text"
-                   maxlength="16"
-                   placeholder="Nombre de usuario"/>
+            <input id="adminAddUsername" type="text" maxlength="16" placeholder="Nombre de usuario"/>
             <select id="adminAddType">
                 <option value="microsoft">Microsoft</option>
                 <option value="offline">No-premium (offline)</option>
             </select>
             <span id="adminAddError" class="adminError"></span>
             <div id="adminAddActions">
-                <button onclick="adminCancelAdd()">Cancelar</button>
-                <button id="adminConfirmAdd" onclick="adminConfirmAddUser()">Agregar</button>
+                <button id="adminAddCancelBtn">Cancelar</button>
+                <button id="adminConfirmAdd">Agregar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: ingresar token -->
+    <div id="adminTokenModal" style="display:none;">
+        <div id="adminTokenModalContent">
+            <h3>GitHub Personal Access Token</h3>
+            <p>Necesario para editar la whitelist. Permisos requeridos: <code>repo</code></p>
+            <input id="adminTokenInput" type="password" placeholder="ghp_..."/>
+            <div id="adminTokenActions">
+                <button id="adminTokenCancelBtn">Cancelar</button>
+                <button id="adminTokenConfirmBtn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: confirmar acción -->
+    <div id="adminConfirmModal" style="display:none;">
+        <div id="adminConfirmModalContent">
+            <h3>Confirmar acción</h3>
+            <p id="adminConfirmMessage"></p>
+            <div id="adminConfirmActions">
+                <button id="adminConfirmModalCancel">Cancelar</button>
+                <button id="adminConfirmOk">Confirmar</button>
             </div>
         </div>
     </div>

@@ -19,11 +19,11 @@ describe('isWhitelisted', () => {
     it('devuelve true cuando el username está en la whitelist (case-insensitive)', async () => {
         got.mockResolvedValue({
             body: [
-                { username: 'VonDefiant', uuid: 'abc', type: 'microsoft', addedAt: '2026-05-15' }
+                { username: 'Senju', uuid: 'abc', type: 'microsoft', addedAt: '2026-05-15' }
             ]
         })
         const { isWhitelisted } = require('../app/assets/js/whitelistmanager')
-        const result = await isWhitelisted('vondefiant')
+        const result = await isWhitelisted('senju')
         expect(result).toBe(true)
     })
 

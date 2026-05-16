@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "productName": "Vitaris Launcher",
   "description": "Launcher oficial de la comunidad Vitaris",
-  "author": "Vitaris",
+  "author": "Senju",
   "license": "UNLICENSED",
-  "homepage": "https://github.com/Vitaris/vitaris-launcher",
+  "homepage": "https://github.com/Dev-Senju-M/VitarisII-Launcher",
   "bugs": {
-    "url": "https://github.com/VonDefiant/NexusLauncher/issues"
+    "url": "https://github.com/Dev-Senju-M/VitarisII-Launcher/issues"
   },
   "private": true,
   "main": "index.js",
@@ -51,6 +51,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/VonDefiant/NexusLauncher.git"
+    "url": "git+https://github.com/Dev-Senju-M/VitarisII-Launcher.git"
   }
 }
