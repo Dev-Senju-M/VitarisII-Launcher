@@ -231,7 +231,9 @@ function createWindow() {
     win = new BrowserWindow({
         title: 'Vitaris Launcher',
         width: 980,
-        height: 552,
+        height: 600,
+        minWidth: 700,
+        minHeight: 560,
         icon: getPlatformIcon('SealCircle'),
         frame: false,
         webPreferences: {
