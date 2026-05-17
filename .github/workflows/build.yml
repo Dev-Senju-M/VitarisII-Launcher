@@ -6,8 +6,25 @@ on:
     tags: ['v*']
 
 jobs:
+  # Solo en tags: crea el release antes de que los builds suban archivos
+  create-release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Crear Release en GitHub
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ github.ref_name }} \
+            --title "Vitaris Launcher ${{ github.ref_name }}" \
+            --notes "Release ${{ github.ref_name }}" \
+            --repo Dev-Senju-M/VitarisII-Launcher
+
   release:
     runs-on: ${{ matrix.os }}
+    needs: ${{ startsWith(github.ref, 'refs/tags/v') && 'create-release' || '' }}
 
     permissions:
       contents: write
