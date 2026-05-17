@@ -11,6 +11,7 @@ publish:
   provider: github
   owner: Dev-Senju-M
   repo: VitarisII-Launcher
+  releaseType: release
 
 files:
   - '!{dist,.gitignore,.vscode,docs,dev-app-update.yml,.nvmrc,.eslintrc.json}'
