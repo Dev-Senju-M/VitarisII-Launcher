@@ -784,20 +784,21 @@ body {
 /* ─── Launch Section ──────────────────────────────────────────── */
 #launchSection {
     flex-shrink: 0;
-    padding: 16px 24px 20px;
+    padding: 12px 24px 16px;
     border-top: 1px solid var(--border);
     background: var(--bg-base);
 }
 #launch_content {
-    display: inline-flex !important;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: row;
     align-items: center;
-    gap: 10px;
+    justify-content: flex-end;
+    gap: 20px;
     width: 100%;
 }
 #launch_button {
-    width: 100%;
-    max-width: 320px;
+    order: 2;
+    flex: 0 0 200px;
     height: 48px;
     background: linear-gradient(135deg, var(--crimson) 0%, var(--lava-dim) 50%, var(--lava) 100%);
     border: none;
@@ -823,26 +824,36 @@ body {
 }
 
 #launch_details {
-    width: 100%;
+    position: static;
+    top: 0;
+    order: 1;
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
 }
 #launch_details_left {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 #launch_progress_label {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--gold);
     font-family: 'Avenir Medium', sans-serif;
-    min-width: 36px;
+    min-width: 38px;
+}
+.bot_divider {
+    height: 16px !important;
+    width: 1px !important;
+    margin-left: 6px !important;
+    margin-right: 6px !important;
 }
 #launch_details_right {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
     width: 100%;
 }
 #launch_progress {
